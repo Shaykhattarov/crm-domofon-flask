@@ -292,3 +292,5 @@ app/static/images/documents/*.jpeg
 
 app/static/images/*.gif
 app/static/images/documents/*.gif
+
+config.py
