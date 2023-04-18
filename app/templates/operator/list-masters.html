@@ -1,0 +1,42 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+    {% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+<section class="main-section">
+    <div class="container">
+        <form class="main-inner">
+            <div class="title">
+                Мастера
+            </div>
+            <div class="push60 hidden-xss"></div>
+            <div class="push40 visible-xss"></div>
+            <div id="calendar"></div>
+            <div class="code-wrapper">
+                <div class="form-group">
+                    <label class="label"  for="address">Адрес</label>
+                    <select name="address" class="form-control select-styler" id="address">
+                            <option value="Адрес 1">Адрес 1</option>
+                            <option value="Адрес 2">Адрес 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="label"  for="name">Имя мастера</label>
+                    <input name="name" type="text" class="form-control" id="name"/>
+                </div>
+            </div>
+            <div class="push20 hidden-xss"></div>
+            <div class="push20 visible-xss"></div>
+            <button class="button">Добавить</button>
+            <div class="push100 hidden-xss"></div>
+            <div class="push50 visible-xss"></div> 
+        </form>	
+    </div>
+</section>
+{% endblock %}
+
+{% block Scripts %}
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">   
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {% block Style %}{% endblock %}
+
+    <title>Домофон</title>
+</head>
+<body class="base-template other lk">
+    <div class="main-wrapper">
+        {% block Header %}{% endblock %}
+        {% block Body %}{% endblock %}
+    </div>
+    {% block Scripts %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/jquery-3.6.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery.fancybox3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery.formstyler.js') }}"></script>
+</body>
+</html>

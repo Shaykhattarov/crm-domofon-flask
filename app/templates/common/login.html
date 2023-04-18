@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+
+{% block Body %}
+		<div class="push100"></div>
+		<div class="push10"></div>
+		<section class="main-section">
+			<div class="container">
+				<div class="main-inner">
+					<div class="title">
+						Авторизируйтесь
+					</div>
+				</div>	
+			</div>
+			<div class="push60 hidden-xss"></div>
+			<div class="push30 vidible-xss"></div>
+			<div class="container">
+				<div class="main-inner w-label">
+					<form method="POST">
+						{{ form.hidden_tag() }}
+						<div class="form-group">
+							{{ form.name(type="text", class="form-control", placeholder="Введите имя") }}
+						</div>
+						<div class="form-group">
+                            {{ form.email(type="text", class="form-control", placeholder="Введите email") }}
+						</div>
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="label" style="color:gray">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+						<div class="push60 hidden-xss"></div>
+						<div class="push10 visible-xss"></div>
+                        {{ form.submit(class="button") }}
+					</form>
+				</div>
+			</div>
+		</section>
+{% endblock %}

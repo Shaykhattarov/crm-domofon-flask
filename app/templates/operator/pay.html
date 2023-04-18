@@ -1,0 +1,51 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+    {% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+<section class="main-section">
+    <div class="container">
+        <form class="main-inner">
+            <div class="title">
+                Платеж
+            </div>
+            <div class="push60 hidden-xss"></div>
+            <div class="push40 visible-xss"></div>
+            <div class="code-wrapper">
+                <div class="form-group">
+                    <label class="label"  for="address">Адрес</label>
+                    <select name="address" class="form-control select-styler" id="address">
+                            <option value="Адрес 1">Адрес 1</option>
+                            <option value="Адрес 2">Адрес 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="label"  for="porch">Подъезд</label>
+                    <select name="porch" class="form-control select-styler" id="porch">
+                            <option value="Подъезд 1">Подъезд 1</option>
+                            <option value="Подъезд 2">Подъезд 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="label"  for="apartment">Квартира</label>
+                    <select name="apartment" class="form-control select-styler" id="apartment">
+                            <option value="Подъезд 1">Квартира 1</option>
+                            <option value="Подъезд 2">Квартира 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="label"  for="summ">Сумма</label>
+                    <input name="summ" type="text" class="form-control" id="summ"/>
+                </div>
+            </div>
+            <div class="push20 hidden-xss"></div>
+            <div class="push20 visible-xss"></div>
+            <button class="button">оплатить</button>
+            <div class="push100 hidden-xss"></div>
+            <div class="push50 visible-xss"></div> 
+        </form>	
+    </div>
+</section>
+{% endblock %}

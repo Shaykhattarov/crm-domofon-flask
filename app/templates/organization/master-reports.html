@@ -1,0 +1,40 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+	{% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+<section class="main-section">
+    <div class="container">
+        <div class="main-inner">
+            <div class="title">
+                Отчеты мастеров
+            </div>
+            <div class="push20"></div>
+            <div class="push15 hidden-xss"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Мастер</th><th>№ заявки</th><th>Статус</th><th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Мастер1</td><td><a href="{{ url_for('organization_report', id=1) }}">1</a></td><td>Выполнено</td><td>02.03.2023</td>
+                    </tr>
+                    <tr>
+                        <td>Мастер2</td><td><a href="{{ url_for('organization_report', id=2) }}">2</a></td><td>Выполнено</td><td>03.03.2023</td>
+                    </tr>
+                    <tr>
+                        <td>Мастер3</td><td><a href="{{ url_for('organization_report', id=3) }}">3</a></td><td>В работе</td><td>06.03.2023</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="push35"></div>
+            <div class="push70 hidden-xss"></div>
+            <div class="push70 visible-xss"></div>
+        </div>	
+    </div>
+</section>
+{% endblock %}
