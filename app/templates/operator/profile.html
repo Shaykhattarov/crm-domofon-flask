@@ -1,0 +1,66 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+	{% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+		<section class="main-section">
+			<div class="container">
+				<div class="main-inner">
+					<div class="title">
+						Личный кабинет
+					</div>
+					<div class="push100 hidden-xss"></div>
+					<div class="push25 visible-xss"></div>
+					<ul class="lk">
+						<li>
+							<a href="{{ url_for('operator_pay') }}">		
+								Платеж
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_report_master') }}">		
+								Отчет мастера
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_create_order') }}">		
+								Заявки на ремонт
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_list_masters') }}">		
+								Список мастеров
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_tasks_masters') }}">		
+								Наряды мастерам
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_report_masters') }}"	>
+								Отчёт по мастерам
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_report_pays') }}">
+								Отчёт по платежам
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_report_request') }}">
+								Отчёт по заявкам
+							</a>
+						</li>
+						<li>
+							<a href="{{ url_for('operator_edit') }}">		
+								Редактировать заявку на ремонт
+							</a>
+						</li>
+					</ul>
+				</div>	
+			</div>
+		</section>
+{% endblock %}

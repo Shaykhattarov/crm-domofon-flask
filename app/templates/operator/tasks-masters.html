@@ -1,0 +1,38 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+    {% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+<section class="main-section">
+    <div class="container">
+        <form class="main-inner">
+            <div class="title">
+                Наряд мастерам
+            </div>
+            <div class="push60 hidden-xss"></div>
+            <div class="push40 visible-xss"></div>
+            <div id="calendar"></div>
+            <div class="code-wrapper">
+                <div class="form-group">
+                    <label class="label"  for="request">Заявка №</label>
+                    <select name="request" class="form-control select-styler" id="request">
+                            <option value="Заявка 1">Заявка 1</option>
+                            <option value="Заявка 2">Заявка 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="label"  for="name">Мастер</label>
+                    <input name="name" type="text" class="form-control" id="name"/>
+                </div>
+            </div>
+            <div class="push20 hidden-xss"></div>
+            <div class="push20 visible-xss"></div>
+            <button class="button">Добавить</button>
+            <div class="push100 hidden-xss"></div>
+            <div class="push50 visible-xss"></div> 
+        </form>	
+    </div>
+</section>
+{% endblock %}

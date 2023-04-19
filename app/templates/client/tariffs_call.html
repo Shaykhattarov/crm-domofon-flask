@@ -1,0 +1,38 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+	{% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+		<section class="main-section">
+			<div class="container">
+				<div class="main-inner">
+					<div class="title">
+						Оплата
+					</div>
+					<div class="push20"></div>
+					<div class="push70 hidden-xss"></div>
+					<div class="push25 visible-xss"></div>
+					<div class="tarifs-wrapper">
+						<div class="item">
+							<div class="item-title">
+								<a class="absolute" href="{{ url_for('tariffs_call_year') }}"></a>
+								За год <br>
+								<span>5 000₽</span>
+							</div>
+						</div>
+						<div class="item">
+							<div class="item-title">
+								<a class="absolute" href="{{ url_for('tariffs_call_month') }}"></a>
+								Ежемесячно <br>
+								<span>1 000₽</span>
+							</div>
+						</div>
+					</div>
+					<div class="push70 hidden-xss"></div>
+					<div class="push25 visible-xss"></div>
+				</div>	
+			</div>
+		</section>
+{% endblock %}

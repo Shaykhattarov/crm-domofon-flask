@@ -1,0 +1,221 @@
+
+/*
+	Theme Colors...
+	Light Color: B8E6FF
+	Medium Light: 9FDDFF
+	Medium dark: 7FD2FF
+	Dark color: 2C7EAA
+
+	Event colors...
+	Default: rgba(0, 153, 153, .4)
+	Appointment: rgba(255, 0, 0, .4)
+	Meeting: rgba(255, 116, 0, .4)
+	Business: rgba(0, 204, 0, .4)
+*/
+
+.CalendarJS{
+	margin:0;
+	padding: 0;
+	background: #fff;
+    box-shadow: 0 0 8px #0000004a;
+    border-radius: 30px;
+	padding: 10px;
+/*	position: relative;*/
+}
+
+.cjs-calHeader{
+	width:100%;
+	color: #000;
+	margin:0;
+	display: block !important;
+	padding:20px 20px 0px!important;
+}
+
+.cjs-right{
+	box-sizing: border-box;
+}
+
+.cjs-top{
+	box-sizing: border-box;
+}
+
+.cjs-left{
+	box-sizing: border-box;
+}
+
+.cjs-bottom{
+	box-sizing: border-box;
+}
+
+.cjs-top-left{
+	border-top-left-radius: 3px;
+	box-sizing: border-box;
+}
+
+.cjs-top-right{
+	border-top-right-radius: 3px;
+	box-sizing: border-box;
+}
+
+.cjs-bottom-left{
+	border-bottom-left-radius: 3px;
+	box-sizing: border-box;
+}
+
+.cjs-bottom-right{
+	border-bottom-right-radius: 3px;
+	box-sizing: border-box;
+}
+
+.cjs-hidden{
+	display:none !important;
+}
+
+.cjs-dayCol{
+
+}
+
+.cjs-dayContent{
+
+}
+
+.cjs-dayHeader{
+	padding: 0;
+	margin:0;
+	font-size:20px;
+	background-color: transparent;
+	color: #000;
+	text-align: center;
+}
+
+.cjs-dayHeaderCell{
+	padding:3px;
+	margin: 0; 
+}
+
+.cjs-dayTable{
+
+}
+
+.cjs-dayCell{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	cursor: pointer;
+}
+
+.cjs-blankday{
+	background-color: transparent;
+}
+
+.cjs-lastLink{
+	float:left;
+	font-size:15px;
+	margin:0;
+	border-radius: 3px;
+	padding: 1px 5px;
+	color: #000;
+	box-sizing: border-box;
+}
+
+.cjs-nextLink{
+	float:right;
+	font-size:15px;
+	margin:0;
+	border-radius: 3px;
+	padding: 1px 5px;
+	color: #000;
+	box-sizing: border-box;
+}
+
+.cjs-clearfix{
+	clear:both;
+	margin:-2px 0;
+	padding:1px;
+	height:0;
+	width:0;
+	border:0;
+}
+
+.cjs-moTitle{
+	text-align:center;
+	font-size: 25px;
+	margin:0;
+	padding: 0;
+}
+
+.cjs-lastLink:hover, .cjs-nextLink:hover{
+	cursor: pointer;
+	color: #212121;
+}
+
+.cjs-calDay:hover .cjs-dateLabel{
+	background: #002FD3;
+    border-radius: 100%;
+    color: #fff;
+	cursor: pointer;
+}
+
+.cjs-active .cjs-dateLabel{
+	background: #002FD3;
+    border-radius: 100%;
+    color: #fff;
+}
+
+.cjs-dateLabel{
+	font-size:20px;
+	margin:0;
+	padding:0;
+	z-index: -1;
+	width: 100%;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cjs-otherEvents{
+	margin:0;
+	padding:0;
+	float: right;
+	font-size:0.7em;
+	background: #7FD2FF;
+	border-radius: 99px;
+	padding: 1px 2px;
+	color: #212121;
+}
+
+.cjs-calEvent{
+	position: absolute;
+	top:0px;
+	left:0px;
+	width:10px;
+	font-size:0.7em;
+	background: rgba(0, 153, 153, .4);
+	border-radius: 3px;
+	padding: 1px 2px;
+	color: #212121;
+	text-align:center;
+	margin:initial;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+.cjs-ellipse {
+    display: table;
+    table-layout: fixed;
+    width: 98%;
+    white-space: nowrap;
+}
+ 
+.cjs-ellipse > * {
+    display: table-cell;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cjs-weekRow{
+	margin:0; padding:0; border:0;
+	position:relative;
+	display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}

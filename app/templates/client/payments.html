@@ -1,0 +1,40 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+	{% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+<section class="main-section">
+    <div class="container">
+        <div class="main-inner">
+            <div class="title">
+                Платежи
+            </div>
+            <div class="push20"></div>
+            <div class="push15 hidden-xss"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Месяц</th><th>Тариф</th><th>Оплата</th><th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Март</td><td>1</td><td>Ежемесячно</td><td class="green">Оплачено</td>
+                    </tr>
+                    <tr>
+                        <td>Апрель</td><td>1</td><td>Ежемесячно</td><td class="red">Не оплачено</td>
+                    </tr>
+                    <tr>
+                        <td>Май</td><td>1</td><td>Ежемесячно</td><td class="red">Не оплачено</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="push35"></div>
+            <div class="push70 hidden-xss"></div>
+            <div class="push70 visible-xss"></div>
+        </div>	
+    </div>
+</section>
+{% endblock %}
