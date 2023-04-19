@@ -1,12 +1,15 @@
+import json
 from app import app, db, login_manager
 from flask import render_template, request, flash, redirect, url_for, session
 from flask_login import login_required, login_user, logout_user, current_user
 from app.models import User, Address
-from app.forms import UserLogin, UserRegistration, ClientPaymentForm
-from app.forms import OrganizationCreateAddress
+from app.forms import UserLogin, UserRegistration
+from app.forms import OrganizationCreateAddress, OrganizationChangeIndividualCode
+from app.forms import OperatorPay
 from common.authorization import authentication, create_user
-from common.address import get_user_address_list, prepare_user_address_list
+from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list
 from common.document import upload_document
+from common.payment import operator_pay_lk
 
 
 
@@ -141,12 +144,9 @@ def tariffs_call_month():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
     
-    form = ClientPaymentForm()
     data = {}
-    if form.validate_on_submit():
-        pass
 
-    return render_template('/client/tariffs_call_pays.html', form=form, data=data)
+    return render_template('/client/tariffs_call_pays.html', data=data)
 
 
 
@@ -155,13 +155,9 @@ def tariffs_call_year():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
     
-    form = ClientPaymentForm()
     data = {}
-    
-    if form.validate_on_submit():
-        pass
 
-    return render_template('/client/tariffs_call_pays.html', form=form, data=data)
+    return render_template('/client/tariffs_call_pays.html', data=data)
     
 
 
@@ -180,7 +176,26 @@ def operator_pay():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
     
-    return render_template('/operator/pay.html')
+    form: OperatorPay = OperatorPay()
+    address_list: list = generate_address_help_list()
+    if form.validate_on_submit():
+        pay: bool = operator_pay_lk(address=form.address.data, apartment=form.apartment.data, amount=form.amount.data)
+
+        if pay:
+            flash("Оплата проведена успешно!")
+        else:
+            flash("Произошла ошибка оплаты или же пользователь не был найден!")
+    
+    return render_template('/operator/pay.html', form=form, address_list=address_list)
+
+@app.route('/operator-pay/apartment/', methods=['POST'])
+def operator_pay_get_apartment():
+    address: str = request.get_data(as_text=True)
+    data: list = generate_apartment_help_list(address=address)
+    if data is not None:
+        return json.dumps(data)
+    else:
+        return 'Empty message', 404
 
 
 
@@ -199,6 +214,15 @@ def operator_tasks_masters():
         return redirect(url_for('login'))
     
     return render_template('/operator/tasks-masters.html')
+
+
+
+@app.route('/operator-report-masters', methods=['GET', 'POST'])
+def operator_report_masters():
+    if not current_user.is_authenticated and current_user.role_id != 2:
+        return redirect(url_for('login'))
+    
+    return render_template('/operator/report-masters.html')
 
 
 
@@ -238,15 +262,18 @@ def operator_edit():
 
 
 
-@app.route('/organization-creating-address')
+@app.route('/organization-creating-address', methods=['GET', 'POST'])
 def organization_creating_address():
     if not current_user.is_authenticated and current_user.role_id != 3:
         return redirect(url_for('login'))
     
     form: OrganizationCreateAddress = OrganizationCreateAddress()
+    form.add_equipment_choices()
+    form.add_tariff_choices()
     if form.validate_on_submit():
         print('[INFO] Форма создания адреса провалидирована!')
-
+        address_id = save_address(street=form.street.data, house=form.house.data, front_door=form.front_door.data, tariff_id=form.tariff.data, equipment_list_id=form.equipment.data, serial_code=form.serial_code.data)
+        print(address_id)
     return render_template('/organization/creating-address.html', form=form)
 
 
@@ -258,7 +285,6 @@ def organization_address():
 
     address_list: list = get_user_address_list()
     address_list: list = prepare_user_address_list(address_list=address_list)
-    
 
     return render_template('/organization/address.html', address_list=address_list)
 
@@ -302,13 +328,18 @@ def organization_docs():
 
 
 
-@app.route('/organization-code')
+@app.route('/organization-code', methods=['GET', 'POST'])
 def organization_code():
     if not current_user.is_authenticated and current_user.role_id != 3:
         return redirect(url_for('login'))
     
-    return render_template('/organization/code.html')
-
+    form: OrganizationChangeIndividualCode = OrganizationChangeIndividualCode()
+    help_list = generate_address_help_list()
+    if form.validate_on_submit():
+        print(form.code.data)
+        address_id = change_address_individual_code(address=form.address.data, code=form.code.data)
+        print(address_id)
+    return render_template('/organization/code.html', form=form, datalist=help_list)
 
 
 

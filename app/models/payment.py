@@ -7,10 +7,10 @@ class Payment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     tariff_id = db.Column(db.Integer, db.ForeignKey("tariff.id"))
-    active_payment = db.Column(db.Integer, nullable=False)
-    payment_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
+    active_sub = db.Column(db.Integer, nullable=False)
+    payment_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
 
     def __repr__(self):
-        return "<Payment {}>".format(self.active_payment)
+        return "<Payment {}>".format(self.active_sub)
     

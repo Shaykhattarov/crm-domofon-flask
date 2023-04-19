@@ -1,3 +1,3 @@
-from .user import UserLogin, UserRegistration
-from .payment import ClientPaymentForm
-from .organization import OrganizationCreateAddress
+from .common import UserLogin, UserRegistration
+from .organization import OrganizationCreateAddress, OrganizationChangeIndividualCode
+from .operator import OperatorPay
