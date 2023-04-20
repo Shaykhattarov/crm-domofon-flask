@@ -1,15 +1,16 @@
 import json
+import math
 from app import app, db, login_manager
 from flask import render_template, request, flash, redirect, url_for, session
 from flask_login import login_required, login_user, logout_user, current_user
-from app.models import User, Address
+from app.models import User, Tariff
 from app.forms import UserLogin, UserRegistration
 from app.forms import OrganizationCreateAddress, OrganizationChangeIndividualCode
 from app.forms import OperatorPay
 from common.authorization import authentication, create_user
 from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list
 from common.document import upload_document
-from common.payment import operator_pay_lk
+from common.payment import operator_pay_lk, equiring
 
 
 
@@ -33,6 +34,8 @@ def login():
                     return redirect(url_for('profile'))
                 case 3:
                     return redirect(url_for('profile'))
+                case 4:
+                    return redirect(url_for('profile'))
         else:
             if result['result'] is not None:
                 flash('Произошла ошибка авторизации')
@@ -49,15 +52,14 @@ def registration():
         return redirect(url_for('profile'))
     
     form = UserRegistration()
-    address = Address().get_all()
+    options = generate_address_help_list()
     if form.validate_on_submit():
         result: bool = create_user(name=form.name.data, email=form.email.data, address=form.address.data, phone=form.phone.data)
-        if result:
+        if result['status'] == 'good':
             return redirect(url_for('login'))
         else:
-            flash('Произошла ошибка при регистрации. Возможно введены некорректные данные')
-            return redirect(url_for('registration'))
-    return render_template('/common/registration.html', form=form, address=address)
+            flash(result['message'])
+    return render_template('/common/registration.html', form=form, options=options)
 
 
 
@@ -72,13 +74,12 @@ def profile():
     match role_id:
         case 1:
             return render_template('/client/profile.html')
-
         case 2:
             return render_template('/operator/profile.html')
-
         case 3:
             return render_template('/organization/profile.html')
-        
+        case 4:
+            return render_template('/master/profile.html')
         case _:
             return redirect(url_for('login'))
 
@@ -135,7 +136,15 @@ def tariffs_call():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     
-    return render_template('/client/tariffs_call.html')
+    if session['phone']:
+        tariff = db.session.query(Tariff).get(1)
+    else:
+        tariff = db.session.query(Tariff).get(2)
+
+    session['month'] = tariff.price
+    session['year'] = tariff.price * 12
+    
+    return render_template('/client/tariffs_call.html', month=tariff.price, year=(tariff.price * 12))
 
 
 
@@ -144,9 +153,10 @@ def tariffs_call_month():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
     
-    data = {}
+    equiring(user_id=current_user.id, amount=session['month'])
 
-    return render_template('/client/tariffs_call_pays.html', data=data)
+    return 'Привет', 200
+
 
 
 
@@ -155,9 +165,6 @@ def tariffs_call_year():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
     
-    data = {}
-
-    return render_template('/client/tariffs_call_pays.html', data=data)
     
 
 
@@ -179,12 +186,19 @@ def operator_pay():
     form: OperatorPay = OperatorPay()
     address_list: list = generate_address_help_list()
     if form.validate_on_submit():
-        pay: bool = operator_pay_lk(address=form.address.data, apartment=form.apartment.data, amount=form.amount.data)
+        amount = float(form.amount.data)
+        if amount <= 0:
+            flash("Введена некорректная сумма")
+            return redirect(url_for('operator_pay'))
+        else:
+            amount: int = math.ceil(amount)
 
-        if pay:
+        pay: dict = operator_pay_lk(address=form.address.data, apartment=form.apartment.data, amount=amount)
+
+        if pay['status'] == 'good':
             flash("Оплата проведена успешно!")
         else:
-            flash("Произошла ошибка оплаты или же пользователь не был найден!")
+            flash(pay['message'])
     
     return render_template('/operator/pay.html', form=form, address_list=address_list)
 
@@ -203,6 +217,11 @@ def operator_pay_get_apartment():
 def operator_report_master():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        app_id = request.form.get('number')
+        status = request.form.get('status')
+        master = request.form.get('master')
 
     return render_template('/operator/report-master.html')
 

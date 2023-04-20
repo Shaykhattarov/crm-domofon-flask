@@ -10,9 +10,9 @@ class UserLogin(FlaskForm):
 
 
 class UserRegistration(FlaskForm):
-    name = StringField('Введите имя', validators=[DataRequired(), Length(min=2, max=25)])
+    name = StringField('Введите имя', validators=[DataRequired(), Length(min=2, max=100)])
     email = EmailField('Введите email', validators=[DataRequired(), Length(min=5, max=2100)])
     phone = StringField('Введите телефон', validators=[DataRequired(), Length(min=2, max=25)])
-    address = StringField('Введите адрес', validators=[DataRequired(), Length(min=2, max=25)])
+    address = StringField('Введите адрес', validators=[DataRequired(), Length(max=300)])
     recaptcha = RecaptchaField()
     submit = SubmitField('продолжить')
