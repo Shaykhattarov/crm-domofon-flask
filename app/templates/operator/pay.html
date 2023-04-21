@@ -7,7 +7,8 @@
 {% block Body %}
 <section class="main-section">
     <div class="container">
-        <form class="main-inner">
+        <form class="main-inner" method="POST">
+            {{ form.hidden_tag() }}
             <div class="title">
                 Платеж
             </div>
@@ -15,37 +16,72 @@
             <div class="push40 visible-xss"></div>
             <div class="code-wrapper">
                 <div class="form-group">
-                    <label class="label"  for="address">Адрес</label>
-                    <select name="address" class="form-control select-styler" id="address">
-                            <option value="Адрес 1">Адрес 1</option>
-                            <option value="Адрес 2">Адрес 2</option>
-                    </select>
+                    {{ form.address.label(class="label", for="address")}}
+                    {{ form.address(class="form-control select-styler", id="address", list="address_list")}}
+                    <datalist id="address_list">
+                        {% for address in address_list %}
+                            <option id="{{address[0]}}">{{address[1]}}</option>
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="porch">Подъезд</label>
-                    <select name="porch" class="form-control select-styler" id="porch">
-                            <option value="Подъезд 1">Подъезд 1</option>
-                            <option value="Подъезд 2">Подъезд 2</option>
-                    </select>
+                    {{ form.apartment.label(class="label", for="apartment") }}
+                    {{ form.apartment(class="form-control select-styler", id="apartment", list="apartment_list") }}
+                    <datalist id="apartment_list">
+                        {% for apartment in apartment_list %}
+                            <option id="{{ apartment[0] }}">{{ apartment[1] }}</option>
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="apartment">Квартира</label>
-                    <select name="apartment" class="form-control select-styler" id="apartment">
-                            <option value="Подъезд 1">Квартира 1</option>
-                            <option value="Подъезд 2">Квартира 2</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="label"  for="summ">Сумма</label>
-                    <input name="summ" type="text" class="form-control" id="summ"/>
+                    {{ form.amount.label(class="label", for="amount") }}
+                    {{ form.amount(type="number", class="form-control", id="amount") }}
                 </div>
             </div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="label" style="color:gray">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             <div class="push20 hidden-xss"></div>
             <div class="push20 visible-xss"></div>
-            <button class="button">оплатить</button>
+            {{ form.submit(class="button") }}
             <div class="push100 hidden-xss"></div>
             <div class="push50 visible-xss"></div> 
         </form>	
     </div>
 </section>
+{% endblock %}
+
+{% block Scripts %}
+<script>
+    const addressElement = document.getElementById("address");
+    const apartmentElementList = document.getElementById("apartment_list");
+    const apartment_url = document.location.protocol + '//' + document.location.host + '/operator-pay/apartment/'; 
+
+    addressElement.addEventListener("input", function (event){
+        let data = this.value;
+
+        $.ajax({
+            async: true,
+            method: 'POST',
+            url: apartment_url,
+            dataType: 'text',
+            data: data,
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#apartment_list").empty();
+                for (let i = 0; i < data.length; i++) {
+                    let newOption = new Option(data[i][1]);
+                    apartmentElementList.append(newOption);
+                }
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    });
+</script>
 {% endblock %}

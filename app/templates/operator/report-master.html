@@ -7,7 +7,7 @@
 {% block Body %}
 <section class="main-section">
     <div class="container">
-        <form class="main-inner">
+        <form class="main-inner" enctype="multipart/form-data" method="POST">
             <div class="title date-title">
                 Отчет мастера
                 <div class="date">
@@ -40,6 +40,10 @@
                     <input name="status" type="text" class="form-control" id="status"/>
                 </div>
                 <div class="form-group">
+                    <label class="label"  for="master">Мастер</label>
+                    <input name="master" type="text" class="form-control" id="master"/>
+                </div>
+                <div class="form-group">
                     <label class="label"  for="problem">Дополнительно (опишите проблемы и трудности, возникшие во время выполнения заявки)</label>
                     <input name="problem" type="text" class="form-control" id="problem"/>
                 </div>
@@ -47,7 +51,7 @@
                 <div class="form-group">
                     <div class="push20 visible-xss"></div>
                     <div class="file-input fileInput" id="fileInputImgVideo">
-                        <input type="file" id="fileInput"  accept="image/*, video/*" name="fileInput[]" />
+                        <input type="file" id="fileInput"  accept="image/*, video/*" name="report" />
                         <label for="fileInput">
                             <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19.4998 23.2917C16.2065 23.2917 13.5415 20.6267 13.5415 17.3333C13.5415 14.04 16.2065 11.375 19.4998 11.375C22.7932 11.375 25.4582 14.04 25.4582 17.3333C25.4582 20.6267 22.7932 23.2917 19.4998 23.2917ZM19.4998 14.625C18.0048 14.625 16.7915 15.8383 16.7915 17.3333C16.7915 18.8283 18.0048 20.0417 19.4998 20.0417C20.9948 20.0417 22.2082 18.8283 22.2082 17.3333C22.2082 15.8383 20.9948 14.625 19.4998 14.625Z" fill="#292D32"/>

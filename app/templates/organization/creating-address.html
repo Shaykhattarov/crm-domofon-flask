@@ -7,37 +7,29 @@
 {% block Body %}
 <section class="main-section">
     <div class="container">
-        <form class="main-inner">
+        <form class="main-inner" method="POST">
+            {{ form.hidden_tag() }}
             <div class="top-inputs">
                 <div class="form-group">
-                    <!--<label class="label"  for="address">Адрес</label>
-                    <select name="address" class="form-control select-styler" id="address">
-                            <option value="Адрес 1">Адрес 1</option>
-                            <option value="Адрес 2">Адрес 2</option>
-                    </select>!-->
-                    {{ form.address.label(class="label", for="address") }}
-                    {{ form.address(class="form-control select-styler", id="address", list="address_list") }}
-                    <datalist id="address_list">
-                        <option value="тест"></option>
-                    </datalist>
+                    {{ form.street.label(class="label", for="address") }}
+                    {{ form.street(class="form-control select-styler", id="address", list="address_list") }}
+                    <datalist id="address_list"></datalist>
                 </div>
                 <div class="form-group">
-                    <!--<label class="label" for="porch">Подъезд</label>
-                    <select name="porch" class="form-control select-styler" id="porch">
-                            <option value="Подъезд 1">Подъезд 1</option>
-                            <option value="Подъезд 2">Подъезд 2</option>
-                    </select>!-->
                     {{ form.front_door.label(class="label", for="porch") }}
                     {{ form.front_door(class="form-control select-styler", id="porch", list="porch_list") }}
-                    <datalist id="porch_list">
-                        <option value="тест"></option>
-                    </datalist>
+                    <datalist id="porch_list"></datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.house.label(class="label", for="house") }}
+                    {{ form.house(class="form-control select-styler", id="house", list="house_list") }}
+                    <datalist id="house_list"></datalist>
                 </div>
             </div>
             <div class="push80 hidden-xss"></div>
             <div class="push40 visible-xss"></div>
             <div class="inner">
-                <div class="inner-title">
+                <div class="inner-title" id="porch-title">
                     Подъезд №1
                 </div>
                 <div class="push100 hidden-xss"></div>
@@ -46,15 +38,10 @@
                     <div class="item">
                         <div class="item-title">
                             {{ form.equipment.label(class="label", for="equipment")}}
-                            <!--<label class="label"  for="equipment">Оборудование</label>!-->
                         </div>
                         <div class="item-content">
                             <div class="form-group">
                                 {{ form.equipment(class="form-control select-styler", id="equipment") }}
-                                <!--<select name="equipment" class="form-control select-styler" id="equipment">
-                                        <option value="Оборудование 1">Оборудование 1</option>
-                                        <option value="Оборудование 2">Оборудование 2</option>
-                                </select>!-->
                             </div>
                         </div>
                     </div>
@@ -89,32 +76,77 @@
 {% block Scripts %}
 <script>
     const kladr_url = 'https://kladr-api.ru/api.php';
+    const cityId = '7700000000000'; // Москва
+
     const addressElement = document.getElementById("address");
+    const addressElementList = document.getElementById("address_list");
+    
     addressElement.addEventListener("input", function(event) {
-        let cityId = '7700000000000';
         let oneString = '1';
-        let limit = '50';
-        let contentType = 'building';
+        let limit = '10';
+        let contentType = 'street';
         let query = this.value;
+        let withParent = '1';
 
-        let url = kladr_url + '?query=' + query + '&cityId=' + cityId + '&oneString=' + oneString + '&limit=' + limit;
-        console.log(url);
+        if (query != '') {
+            let url = kladr_url + '?query=' + query + '&cityId=' + cityId + '&oneString=' + oneString + '&limit=' + limit + '&withParent=' + withParent + '&contentType=' + contentType;
 
-        $.ajax({
-            async: true,
-            method: 'GET',
-            url: url,
-            crossDomain: true,
-            dataType: 'jsonp',
-            headers: {'Access-Control-Allow-Origin': '*'},
-            success: function (data) {
-                console.log(data);
-            },
-            error: function (data) {
-                console.log(data);
-            },
-        });
+            $.ajax({
+                async: true,
+                method: 'GET',
+                url: url,
+                crossDomain: true,
+                dataType: 'jsonp',
+                headers: {'Access-Control-Allow-Origin': '*'},
+                success: function (data) {
+                    console.log(data.result);
+                    $("#address_list").empty();
+                    for (let i = 0; i < data.result.length; i++) {
+                        let newOption = new Option(data.result[i]['id'], data.result[i]['name']);
+                        addressElementList.append(newOption);
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                },
+            });
+        }
+    });
 
+    const houseElement = document.getElementById("house");
+    const houseElementList = document.getElementById("house_list");
+
+    houseElement.addEventListener('input', function(event) {
+        let streetId = $("#address_list option").text();
+        let contentType = 'building';
+        let limit = '20';
+        let oneString = '0';
+        let query = this.value;
+        
+        if (query != '' && streetId) {
+            let url = kladr_url + '?query=' + query + '&streetId=' + streetId + '&limit=' + limit + '&contentType=' + contentType;
+            console.log(url);
+        
+            $.ajax({
+                async: true,
+                method: 'GET',
+                url: url,
+                crossDomain: true,
+                dataType: 'jsonp',
+                headers: {'Access-Control-Allow-Origin': '*'},
+                success: function (data) {
+                    console.log(data.result);
+                    $("#house_list").empty();
+                    for (let i = 0; i < data.result.length; i++) {
+                        let newOption = new Option(data.result[i]['id'], data.result[i]['name']);
+                        houseElementList.append(newOption);
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

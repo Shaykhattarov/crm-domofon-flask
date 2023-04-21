@@ -32,11 +32,9 @@
                 <div class="form-group">
                     {{ form.address(class="form-control", list="address_list", placeholder="Введите адрес") }}
                     <datalist id="address_list">
-                        <option value="ул. Любови Шевцовой"></option>
-                        <option value="ул. Люксембурга"></option>
-                        <option value="ул. Лаишевская"></option>
-                        <option value="ул. Чайковского"></option>
-                        <option value="ул. Нариманова"></option>
+                        {% for option in options %}
+                            <option id="{{ option[0] }}">{{ option[1] }}</option>
+                        {% endfor %}
                     </datalist>
                 </div>
                 <div class="form-group">
