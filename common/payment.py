@@ -95,10 +95,14 @@ def client_pay():
 
 
 
-def equiring(user_id: int, amount: int, return_url: str):
+def equiring(user_id: int, amount: int):
     """ Эквайринг """
 
     url = app.config['EQUIRE_URL_CREATE']
+    response = {
+        'error': '',
+        'payment_url': ''
+    }
 
     user = db.session.query(User).get(user_id)
     user_address = db.session.query(UserAddress).get(user.address_id)
@@ -114,7 +118,7 @@ def equiring(user_id: int, amount: int, return_url: str):
         'options': {
             'auto_charge': 1,
             'language': 'ru',
-            'return_url': return_url
+            'return_url': 'https://xn----btbh6afeba2bq.xn--p1ai/'
         },
         'client': {
             "address": address,
@@ -126,14 +130,24 @@ def equiring(user_id: int, amount: int, return_url: str):
         },
         "description": "Покупка продуктов или услуг на сайте домофон-тб.рф"
     }
-
+    
     try:
         answer = requests.post(url=url, headers=headers, data=json.dumps(data))
     except Exception as err:
         print(f'[ERROR] Equire error: {err}')
     else:
         response_2can = json.loads(answer.text)
+        print(response_2can)
         head = answer.headers
         order_id_in_system = response_2can['orders'][0].get('id', None)
         if order_id_in_system is not None:
+            response["payment_url"] = head['Location']
+            req = requests.post(head['Location'])
+            with open('result.html', 'w', encoding='utf-8') as file:
+                file.write(req.text)
             client_pay()
+        else:
+            return {
+                'status': 'error',
+                'message': 'Ошибка в проведении платежа'
+            }
