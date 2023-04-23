@@ -10,7 +10,7 @@ from app.forms import OperatorPay
 from common.authorization import authentication, create_user
 from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list
 from common.document import upload_document
-from common.payment import operator_pay_lk, equiring
+from common.payment import operator_pay_lk, equiring, successfull_payment, get_payments
 
 
 
@@ -115,7 +115,6 @@ def client_tariffs():
 def contract_offer():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
-    
     return render_template('/client/contract_offer.html')
 
 
@@ -126,7 +125,18 @@ def client_payments():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
     
-    return render_template('/client/payments.html')
+    payments = []
+    payments: list[dict] = get_payments(user_id=current_user.id)
+    
+    payments.append({
+        'payment_date': "04.04.2023",
+        'end_date': "04.05.2023",
+        "tariff": "С трубкой",
+        "option": "Ежемесячно",
+        "status": False
+    })
+    
+    return render_template('/client/payments.html', payments=payments)
     
 
 
@@ -152,10 +162,34 @@ def tariffs_call():
 def tariffs_call_month():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
-    
-    equiring(user_id=current_user.id, amount=session['month'])
 
-    return 'Привет', 200
+    response = equiring(user_id=current_user.id, amount=session['month'])
+    if response is None or response['error'] == '':
+        return redirect(response['payment_url'])
+    else:
+        if response['message'] is not None:
+            flash(response['message'])
+            return redirect(url_for('tariff-calls'))
+        else:
+            flash('Ошибка оплаты')
+            return redirect(url_for('tariff-calls'))
+
+
+
+@app.route('/successfull-payment', methods=['GET', 'POST'])
+def successfull_payment():
+    response = successfull_payment(request)
+    if response['error'] == '':
+        return redirect(url_for('profile'))
+    else:
+        return redirect(url_for('error_payment'))
+    
+
+
+@app.route('/error-payment', methods=['GET', 'POST'])
+def error_payment():
+    return "Ошибка оплаты"
+
 
 
 
@@ -165,7 +199,16 @@ def tariffs_call_year():
     if not current_user.is_authenticated: 
         return redirect(url_for('login'))
     
-    
+    response = equiring(user_id=current_user.id, amount=session['year'])
+    if response['error'] == '':
+        return redirect(response['payment_url'])
+    else:
+        if response['message'] is not None:
+            flash(response['message'])
+            return redirect(url_for('tariff-calls'))
+        else:
+            flash('Ошибка оплаты')
+            return redirect(url_for('tariff-calls'))
 
 
 @app.route('/operator-create-order', methods=['GET', 'POST'])

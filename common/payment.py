@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 import requests, json
 import math
 from app import db, app
-from app.models import User, UserAddress, Address, Payment, Tariff
+from app.models import User, UserAddress, Address, Payment, Tariff, ArchivePayment
+from flask import redirect
 from .address import parse_address
 
 
@@ -90,8 +91,83 @@ def operator_pay_lk(address: str, apartment: str, amount: int):
     return {'status': 'error', 'message': 'Оплата по данному адресу никогда не производилась'}
 
 
-def client_pay():
-    pass
+def successfull_payment(request):
+    response = {
+        'error': ''
+    }
+    req_result = request.get_data()
+    number_order = req_result['order_id']
+    if number_order is None:
+        response['error'] = 'error'
+        response['message'] = 'Неизвестный номер заказа'
+        return response
+
+    url = f"{app.config['EQUIRE_GET_ORDER']}/{number_order}" 
+    headers = {'Content-type': 'application/json'}
+    answer = requests.get(url, headers=headers)
+    response_answer = json.loads(answer.text)
+    order_response = response_answer.get('orders', {})
+    print(answer)
+    if order_response is not None:
+        status_payment = order_response[0].get('status', False)
+        merchant_order_id = order_response[0].get('merchant_order_id', None)
+        amount = order_response[0].get(amount, None)
+        if merchant_order_id is not None:
+            if status_payment:
+                if status_payment == "charged":
+                    resp = __save_order(merchant_order_id, amount=amount)
+                    if resp['error'] == '':
+                       return response
+                    else:
+                       return resp['message']
+                else:
+                    response['message'] = 'Неизвестный статус'
+                    return response
+
+
+def __save_order(user_id, amount):
+    tariff = db.session.query(Tariff).filter_by(amount=amount).first()
+    year = False
+    if tariff is None:
+        year = True
+        tariff = db.session.query(Tariff).filter_by(amount=(amount // 12)).first()
+        if tariff is None:
+            return {
+                'error': 'error',
+                'message': 'Неизвестная сумма'
+            }
+    if year:
+        end_date = datetime.now() + timedelta(days=365)
+    else:
+        end_date = datetime.now() + timedelta(days=30)
+
+    payment: Payment = Payment (
+        tariff_id=tariff.id,
+        active_sub=1,
+        payment_date=datetime.now(),
+        end_date=end_date
+    )
+    db.session.add(payment)
+    db.session.commit()
+
+    user = db.session.query(User).get(user_id)
+    if user.payment_id is not None:
+        archive = ArchivePayment(
+            payment_id = user.payment_id,
+            user_id = user.id
+        )
+        user.payment_id = payment.id
+        db.session.add(archive)
+        db.session.commit()
+
+    user.payment_id = payment.id
+    db.session.commit()
+
+    return {
+        'error': ''
+    }
+
+
 
 
 
@@ -118,7 +194,7 @@ def equiring(user_id: int, amount: int):
         'options': {
             'auto_charge': 1,
             'language': 'ru',
-            'return_url': 'https://xn----btbh6afeba2bq.xn--p1ai/'
+            'return_url': app.config['EQUIRE_RETURN_URL']
         },
         'client': {
             "address": address,
@@ -130,24 +206,41 @@ def equiring(user_id: int, amount: int):
         },
         "description": "Покупка продуктов или услуг на сайте домофон-тб.рф"
     }
-    
+
     try:
         answer = requests.post(url=url, headers=headers, data=json.dumps(data))
     except Exception as err:
         print(f'[ERROR] Equire error: {err}')
+        return {
+            'error': 'error',
+            'message': 'Ошибка запроса'
+        }
     else:
         response_2can = json.loads(answer.text)
-        print(response_2can)
         head = answer.headers
         order_id_in_system = response_2can['orders'][0].get('id', None)
         if order_id_in_system is not None:
             response["payment_url"] = head['Location']
-            req = requests.post(head['Location'])
-            with open('result.html', 'w', encoding='utf-8') as file:
-                file.write(req.text)
-            client_pay()
+            return response
         else:
             return {
                 'status': 'error',
                 'message': 'Ошибка в проведении платежа'
             }
+
+
+def get_payments(user_id: int) -> list[dict]:
+    payments: list = []
+
+    user = db.session.query(User).get(user_id)
+    if user.payment_id is not None:
+        payment = db.session.query(Payment).get(user.payment_id)
+        archive = db.session.query(ArchivePayment).filter_by(user_id=user.id).order_by(ArchivePayment.id).all()
+        archive_payments = []
+        for el in archive:
+            payment = db.session.query(Payment).get(el.id)
+            archive_payments.append(payment)
+        
+        print(archive, payment)
+    
+    return payments
