@@ -17,8 +17,8 @@
             <div class="code-wrapper">
                 <div class="form-group">
                     {{ form.address.label(class="label", for="address")}}
-                    {{ form.address(class="form-control select-styler", id="address", list="address_list")}}
-                    <datalist id="address_list">
+                    {{ form.address(class="form-control select-styler", id="address", list="address-list")}}
+                    <datalist id="address-list">
                         {% for address in address_list %}
                             <option id="{{address[0]}}">{{address[1]}}</option>
                         {% endfor %}
@@ -26,12 +26,16 @@
                 </div>
                 <div class="form-group">
                     {{ form.apartment.label(class="label", for="apartment") }}
-                    {{ form.apartment(class="form-control select-styler", id="apartment", list="apartment_list") }}
-                    <datalist id="apartment_list">
+                    {{ form.apartment(class="form-control select-styler", id="apartment", list="apartment-list") }}
+                    <datalist id="apartment-list">
                         {% for apartment in apartment_list %}
                             <option id="{{ apartment[0] }}">{{ apartment[1] }}</option>
                         {% endfor %}
                     </datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.tariff.label(class="label", for="tariff") }}
+                    {{ form.tariff(type="number", class="form-control", id="tariff") }}
                 </div>
                 <div class="form-group">
                     {{ form.amount.label(class="label", for="amount") }}
@@ -58,8 +62,8 @@
 {% block Scripts %}
 <script>
     const addressElement = document.getElementById("address");
-    const apartmentElementList = document.getElementById("apartment_list");
-    const apartment_url = document.location.protocol + '//' + document.location.host + '/operator-pay/apartment/'; 
+    const apartmentElementList = document.getElementById("apartment-list");
+    const apartment_url = document.location.protocol + '//' + document.location.host + '/operator/apartment/'; 
 
     addressElement.addEventListener("input", function (event){
         let data = this.value;
@@ -72,7 +76,7 @@
             data: data,
             success: function (data) {
                 data = JSON.parse(data);
-                $("#apartment_list").empty();
+                $("#apartment-list").empty();
                 for (let i = 0; i < data.length; i++) {
                     let newOption = new Option(data[i][1]);
                     apartmentElementList.append(newOption);

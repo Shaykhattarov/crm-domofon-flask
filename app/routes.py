@@ -6,11 +6,12 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app.models import User, Tariff
 from app.forms import UserLogin, UserRegistration
 from app.forms import OrganizationCreateAddress, OrganizationChangeIndividualCode
-from app.forms import OperatorPay
+from app.forms import OperatorPay, CreateApplicationReportForm, CreateApplicationForm, ChangeApplicationForm
 from common.authorization import authentication, create_user
-from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list
+from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list, get_individual_code
 from common.document import upload_document
-from common.payment import operator_pay_lk, equiring, successfull_payment, get_payments
+from common.payment import operator_pay_lk, equiring, successfull_payment, get_payments, check_subscriptions
+from common.application import count_application, create_application, change_application
 
 
 
@@ -71,9 +72,12 @@ def profile():
     
     role_id = int(session.get('role_id'))
 
+    check_subscriptions()
+
     match role_id:
         case 1:
-            return render_template('/client/profile.html')
+            individual_code = get_individual_code(user_id=current_user.id)
+            return render_template('/client/profile.html', individual_code=individual_code)
         case 2:
             return render_template('/operator/profile.html')
         case 3:
@@ -127,14 +131,6 @@ def client_payments():
     
     payments = []
     payments: list[dict] = get_payments(user_id=current_user.id)
-    
-    payments.append({
-        'payment_date': "04.04.2023",
-        'end_date': "04.05.2023",
-        "tariff": "С трубкой",
-        "option": "Ежемесячно",
-        "status": False
-    })
     
     return render_template('/client/payments.html', payments=payments)
     
@@ -192,8 +188,6 @@ def error_payment():
 
 
 
-
-
 @app.route('/tariffs-call-year', methods=['GET', 'POST'])
 def tariffs_call_year():
     if not current_user.is_authenticated: 
@@ -211,13 +205,27 @@ def tariffs_call_year():
             return redirect(url_for('tariff-calls'))
 
 
+
 @app.route('/operator-create-order', methods=['GET', 'POST'])
 @login_required
 def operator_create_order():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
     
-    return render_template('/operator/create-order.html')
+    data = {}
+    form: CreateApplicationForm = CreateApplicationForm()
+    form.add_master_choices()
+    form.add_address_choices()
+    data['id']: int = count_application() + 1
+    data['address'] = generate_address_help_list()
+    if form.validate_on_submit():
+        result = create_application(address=form.address.data, apartment=form.apartment.data, master_id=form.master.data, problem=form.problem.data, date=form.date.data, image=form.image.data)
+        if result['error'] == '':
+            flash("Заявка успешно создана!")
+        else:
+            flash("Произошла ошибка!")
+
+    return render_template('/operator/create-order.html', form=form, data=data)
 
 
 
@@ -227,6 +235,7 @@ def operator_pay():
         return redirect(url_for('login'))
     
     form: OperatorPay = OperatorPay()
+    form.add_tariff_choices()
     address_list: list = generate_address_help_list()
     if form.validate_on_submit():
         amount = float(form.amount.data)
@@ -235,8 +244,8 @@ def operator_pay():
             return redirect(url_for('operator_pay'))
         else:
             amount: int = math.ceil(amount)
-
-        pay: dict = operator_pay_lk(address=form.address.data, apartment=form.apartment.data, amount=amount)
+    
+        pay: dict = operator_pay_lk(address=form.address.data, apartment=form.apartment.data, amount=amount, tariff_id=form.tariff.data)
 
         if pay['status'] == 'good':
             flash("Оплата проведена успешно!")
@@ -245,8 +254,8 @@ def operator_pay():
     
     return render_template('/operator/pay.html', form=form, address_list=address_list)
 
-@app.route('/operator-pay/apartment/', methods=['POST'])
-def operator_pay_get_apartment():
+@app.route('/operator/apartment/', methods=['POST'])
+def operator_get_apartment():
     address: str = request.get_data(as_text=True)
     data: list = generate_apartment_help_list(address=address)
     if data is not None:
@@ -270,15 +279,6 @@ def operator_report_master():
 
 
 
-@app.route('/operator-tasks-masters', methods=['GET', 'POST'])
-def operator_tasks_masters():
-    if not current_user.is_authenticated and current_user.role_id != 2:
-        return redirect(url_for('login'))
-    
-    return render_template('/operator/tasks-masters.html')
-
-
-
 @app.route('/operator-report-masters', methods=['GET', 'POST'])
 def operator_report_masters():
     if not current_user.is_authenticated and current_user.role_id != 2:
@@ -297,15 +297,6 @@ def operator_report_pays():
 
 
 
-@app.route('/operator-list-masters')
-def operator_list_masters():
-    if not current_user.is_authenticated and current_user.role_id != 2:
-        return redirect(url_for('login'))
-    
-    return render_template('/operator/list-masters.html')
-
-
-
 @app.route('/operator-report-request')
 def operator_report_request():
     if not current_user.is_authenticated and current_user.role_id != 2:
@@ -315,12 +306,20 @@ def operator_report_request():
 
 
 
-@app.route('/operator-edit')
+@app.route('/operator-edit-order', methods=['GET', 'POST'])
 def operator_edit():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
     
-    return render_template('/operator/edit.html')
+    form = ChangeApplicationForm()
+    form.add_application_choices()
+    form.add_status_choices()
+    if form.validate_on_submit():
+        change_application(num=form.number.data, problem=form.problem.data, date=form.date.data, status_id=form.status.data, image=form.image.data)
+        flash('Заявка успешно изменена!')
+        return redirect(url_for('operator_edit'))
+
+    return render_template('/operator/edit.html', form=form)
 
 
 
@@ -402,7 +401,6 @@ def organization_code():
         address_id = change_address_individual_code(address=form.address.data, code=form.code.data)
         print(address_id)
     return render_template('/organization/code.html', form=form, datalist=help_list)
-
 
 
 

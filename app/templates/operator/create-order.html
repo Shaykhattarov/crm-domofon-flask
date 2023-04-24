@@ -7,9 +7,10 @@
 {% block Body %}
 <section class="main-section">
     <div class="container">
-        <form class="main-inner">
+        <form class="main-inner" enctype="multipart/form-data" method="POST">
+            {{ form.hidden_tag() }}
             <div class="title date-title">
-                Заявка №31
+                Заявка №{{ data['id'] }}
                 <div class="date">
                     <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 8.625C11.385 8.625 10.875 8.115 10.875 7.5V3C10.875 2.385 11.385 1.875 12 1.875C12.615 1.875 13.125 2.385 13.125 3V7.5C13.125 8.115 12.615 8.625 12 8.625Z" fill="#002FD3"/>
@@ -23,7 +24,7 @@
                         <path d="M30.75 14.7598H5.25C4.635 14.7598 4.125 14.2498 4.125 13.6348C4.125 13.0198 4.635 12.5098 5.25 12.5098H30.75C31.365 12.5098 31.875 13.0198 31.875 13.6348C31.875 14.2498 31.365 14.7598 30.75 14.7598Z" fill="#002FD3"/>
                         <path d="M24 34.125H12C6.525 34.125 3.375 30.975 3.375 25.5V12.75C3.375 7.275 6.525 4.125 12 4.125H24C29.475 4.125 32.625 7.275 32.625 12.75V25.5C32.625 30.975 29.475 34.125 24 34.125ZM12 6.375C7.71 6.375 5.625 8.46 5.625 12.75V25.5C5.625 29.79 7.71 31.875 12 31.875H24C28.29 31.875 30.375 29.79 30.375 25.5V12.75C30.375 8.46 28.29 6.375 24 6.375H12Z" fill="#002FD3"/>
                     </svg>
-                    <input type="text" class="today" name="date" id="date-picker">
+                    {{ form.date(type="text", class="today", id="date-picker") }}
                     <div id="cal1" style="display:none;"></div>
                 </div>
             </div>
@@ -32,38 +33,57 @@
             <div id="calendar"></div>
             <div class="code-wrapper">
                 <div class="form-group">
-                    <label class="label"  for="address">Адрес</label>
-                    <select name="address" class="form-control select-styler" id="address">
-                            <option value="Адрес 1">Адрес 1</option>
-                            <option value="Адрес 2">Адрес 2</option>
-                    </select>
+                    {{ form.address.label(class="label", for="address") }}
+                    {{ form.address(class="form-control select-styler", id="address", list="address-list") }}
+                    <datalist id="address-list">
+                        {% for address in data['address'] %}
+                            <option id="{{ address[0] }}">{{ address[1] }}</option>
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="porch">Подъезд</label>
-                    <select name="porch" class="form-control select-styler" id="porch">
-                            <option value="Подъезд 1">Подъезд 1</option>
-                            <option value="Подъезд 2">Подъезд 2</option>
-                    </select>
+                    {{ form.apartment.label(class="label", for="apartment") }}
+                    {{ form.apartment(class="form-control select-styler", id="apartment", list="apartment-list") }}
+                    <datalist id="apartment-list">
+                        {% for apartment in data["apartment"] %}
+                            <option id="{{ apartment[0] }}">{{ apartment[1] }}</option>
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="apartment">Квартира</label>
-                    <select name="apartment" class="form-control select-styler" id="apartment">
-                            <option value="Подъезд 1">Квартира 1</option>
-                            <option value="Подъезд 2">Квартира 2</option>
-                    </select>
+                    {{ form.master.label(class="label", for="master") }}
+                    {{ form.master(type="text", class="form-control select-styler", id="master") }}
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="master">Мастер</label>
-                    <input name="master" type="text" class="form-control" id="master"/>
+                    {{ form.problem.label(class="label", for="problem") }}
+                    {{ form.problem(type="text", class="form-control", id="problem") }}
                 </div>
-                <div class="form-group">
-                    <label class="label"  for="problem">Проблема</label>
-                    <input name="problem" type="text" class="form-control" id="problem"/>
+                <div class="file-input fileInput" id="fileInputWrap">
+                    {{ form.image(type="file", accept="image/jpeg,image/jpg,image/png,image/gif") }}
+                    <label for="fileInput">
+                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.4998 23.2917C16.2065 23.2917 13.5415 20.6267 13.5415 17.3333C13.5415 14.04 16.2065 11.375 19.4998 11.375C22.7932 11.375 25.4582 14.04 25.4582 17.3333C25.4582 20.6267 22.7932 23.2917 19.4998 23.2917ZM19.4998 14.625C18.0048 14.625 16.7915 15.8383 16.7915 17.3333C16.7915 18.8283 18.0048 20.0417 19.4998 20.0417C20.9948 20.0417 22.2082 18.8283 22.2082 17.3333C22.2082 15.8383 20.9948 14.625 19.4998 14.625Z" fill="#292D32"/>
+                            <path d="M32.5002 49.2916H19.5002C7.73516 49.2916 2.7085 44.2649 2.7085 32.4999V19.4999C2.7085 7.73492 7.73516 2.70825 19.5002 2.70825H28.1668C29.0552 2.70825 29.7918 3.44492 29.7918 4.33325C29.7918 5.22159 29.0552 5.95825 28.1668 5.95825H19.5002C9.51183 5.95825 5.9585 9.51159 5.9585 19.4999V32.4999C5.9585 42.4883 9.51183 46.0416 19.5002 46.0416H32.5002C42.4885 46.0416 46.0418 42.4883 46.0418 32.4999V21.6666C46.0418 20.7783 46.7785 20.0416 47.6668 20.0416C48.5552 20.0416 49.2918 20.7783 49.2918 21.6666V32.4999C49.2918 44.2649 44.2652 49.2916 32.5002 49.2916Z" fill="#292D32"/>
+                            <path d="M46.0417 12.4583H34.125C33.2367 12.4583 32.5 11.7216 32.5 10.8333C32.5 9.94492 33.2367 9.20825 34.125 9.20825H46.0417C46.93 9.20825 47.6667 9.94492 47.6667 10.8333C47.6667 11.7216 46.93 12.4583 46.0417 12.4583Z" fill="#292D32"/>
+                            <path d="M40.0835 18.4167C39.1952 18.4167 38.4585 17.68 38.4585 16.7917V4.875C38.4585 3.98667 39.1952 3.25 40.0835 3.25C40.9718 3.25 41.7085 3.98667 41.7085 4.875V16.7917C41.7085 17.68 40.9718 18.4167 40.0835 18.4167Z" fill="#292D32"/>
+                            <path d="M5.7845 42.6834C5.2645 42.6834 4.7445 42.4234 4.44116 41.9684C3.94283 41.2317 4.13783 40.2134 4.8745 39.715L15.5562 32.5434C17.8962 30.9834 21.1245 31.1567 23.2478 32.955L23.9628 33.5834C25.0462 34.515 26.8878 34.515 27.9495 33.5834L36.9628 25.8484C39.2812 23.8767 42.8778 23.8767 45.1962 25.8484L48.7278 28.8817C49.3995 29.4667 49.4862 30.485 48.9012 31.1784C48.3162 31.85 47.2978 31.9367 46.6045 31.3517L43.0728 28.3184C41.9895 27.3867 40.1478 27.3867 39.0862 28.3184L30.0728 36.0534C27.7762 38.025 24.1578 38.025 21.8395 36.0534L21.1245 35.425C20.1278 34.58 18.4812 34.4934 17.3762 35.2517L6.71616 42.4234C6.41283 42.5967 6.08783 42.6834 5.7845 42.6834Z" fill="#292D32"/>
+                        </svg>                                       
+                        Загрузите фото документа
+                    </label>
                 </div>
             </div>
-            <div class="push20 hidden-xss"></div>
+            <div class="push50 hidden-xss"></div>
             <div class="push20 visible-xss"></div>
-            <button class="button">создать</button>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="label" style="color:gray">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <div class="push50 hidden-xss"></div>
+            <div class="push20 visible-xss"></div>
+            {{ form.submit(class="button") }}
             <div class="push100 hidden-xss"></div>
             <div class="push50 visible-xss"></div> 
         </form>	
@@ -93,6 +113,35 @@
             && !$('#date-picker').is(e.target) ) { // и не по его дочерним элементам
             div.hide(); // скрываем его
         }
+    });
+</script>
+
+<script>
+    const addressElement = document.getElementById("address");
+    const apartmentElementList = document.getElementById("apartment-list");
+    const apartment_url = document.location.protocol + '//' + document.location.host + '/operator/apartment/'; 
+
+    addressElement.addEventListener("input", function (event){
+        let data = this.value;
+
+        $.ajax({
+            async: true,
+            method: 'POST',
+            url: apartment_url,
+            dataType: 'text',
+            data: data,
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#apartment-list").empty();
+                for (let i = 0; i < data.length; i++) {
+                    let newOption = new Option(data[i][1]);
+                    apartmentElementList.append(newOption);
+                }
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
     });
 </script>
 {% endblock %}

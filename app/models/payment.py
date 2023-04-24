@@ -2,25 +2,30 @@ from app import db
 
 
 
+class Subscription(db.Model):
+    __tablename__ = "subscription"
+
+    id = db.Column(db.Integer, primary_key=True)
+    tariff_id = db.Column(db.Integer, db.ForeignKey("tariff.id"), nullable=False)
+    active = db.Column(db.Integer, default=0, nullable=False)
+    option = db.Column(db.String(200))
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date)
+
+    def __repr__(self):
+        return "<Subscription {} - {}>".format(self.id, self.active)
+
+
+
 class Payment(db.Model):
     __tablename__ = "payment"
 
     id = db.Column(db.Integer, primary_key=True)
-    tariff_id = db.Column(db.Integer, db.ForeignKey("tariff.id"))
-    active_sub = db.Column(db.Integer, nullable=False)
-    payment_date = db.Column(db.Date)
-    end_date = db.Column(db.Date)
+    subscription_id = db.Column(db.Integer, db.ForeignKey("subscription.id"))
+    date = db.Column(db.Date, nullable=False)
+    period = db.Column(db.Date, nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return "<Payment {}>".format(self.id)
+        return "<Payment {} - {}>".format(self.subscription_id, self.id)
     
-
-class ArchivePayment(db.Model):
-    __tablename__ = 'archive_payment'
-
-    id = db.Column(db.Integer, primary_key=True)
-    payment_id = db.Column(db.Integer, db.ForeignKey('payment.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    def __repr__(self):
-        return "<ArchivePayment {}>".format(self.payment_id)

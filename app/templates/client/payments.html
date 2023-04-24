@@ -20,19 +20,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for payment in payments %}
-                        <tr>
-                            <td>{{ payment["payment_date"] }}&nbsp-&nbsp{{ payment["end_date"] }}</td><td>{{ payment["tariff"] }}</td><td>{{ payment["option"] }}</td>
-                            {% if payment["status"] %}
-                                <td style="color: rgb(3, 176, 3);">Действует</td>
-                            {% else %}
-                                <td style="color: red;">Истёк</td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
+                    {% if payments %}
+                        {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment["payment_date"] }}&nbsp-&nbsp{{ payment["end_date"] }}</td><td>{{ payment["tariff"] }}</td><td>{{ payment["option"] }}</td>
+                                {% if payment["status"] %}
+                                    <td style="color: rgb(3, 176, 3);">Действует</td>
+                                {% else %}
+                                    <td style="color: red;">Истёк</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    {% else %}
                     <tr>
-                        <td>01.03.2023 - 30.03.2023</td><td>С трубкой</td><td>Ежемесячно</td><td>Истек</td>
+                        <td>Оплаты еще не производились</td>
                     </tr>
+                    {% endif %}
                 </tbody>
             </table>
             <div class="push35"></div>
