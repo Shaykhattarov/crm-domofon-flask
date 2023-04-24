@@ -1,6 +1,7 @@
 from app import db, app
 import os, uuid
 from app.models import Application
+from datetime import datetime
 
 
 
@@ -24,7 +25,7 @@ def create_application(address: str, apartment: str, master_id: int, date: str, 
     """ Создание новой заявки на ремонт """
 
     file = upload_application(image)
-
+    date = datetime.strptime(date, "%d.%m.%Y").date()
     application = Application(
         address=address,
         apartment=apartment,

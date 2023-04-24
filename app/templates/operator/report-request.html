@@ -7,7 +7,8 @@
 {% block Body %}
 <section class="main-section">
     <div class="container">
-        <form class="main-inner">
+        <form class="main-inner" method="POST">
+            {{ form.hidden_tag() }}
             <div class="title">
                 Отчет по заявкам
             </div>
@@ -16,25 +17,19 @@
             <div id="calendar"></div>
             <div class="code-wrapper">
                 <div class="form-group">
-                    <label class="label"  for="address">Адрес</label>
-                    <select name="address" class="form-control select-styler" id="address">
-                            <option value="Адрес 1">Адрес 1</option>
-                            <option value="Адрес 2">Адрес 2</option>
-                    </select>
+                    {{ form.address.label(class="label", for="address") }}
+                    {{ form.address(class="form-control select-styler", id="address") }}
+                    <datalist id="address-list">
+                        {% for address in data['address'] %}
+                            <option id="{{ address[0] }}">{{ address[1] }}</option>
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="porch">Подъезд</label>
-                    <select name="porch" class="form-control select-styler" id="porch">
-                            <option value="Подъезд 1">Подъезд 1</option>
-                            <option value="Подъезд 2">Подъезд 2</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="label"  for="apartment">Квартира</label>
-                    <select name="apartment" class="form-control select-styler" id="apartment">
-                            <option value="Подъезд 1">Квартира 1</option>
-                            <option value="Подъезд 2">Квартира 2</option>
-                    </select>
+                    {{ form.apartment.label(class="label", for="apartment") }}
+                    {{ form.apartment(class="form-control select-styler", id="apartment") }}
+                    <datalist id="apartment-list">
+                    </datalist>
                 </div>
                 <div class="form-group">
                     <div class="text-label">Период</div>
@@ -52,9 +47,9 @@
                             <path d="M24 34.125H12C6.525 34.125 3.375 30.975 3.375 25.5V12.75C3.375 7.275 6.525 4.125 12 4.125H24C29.475 4.125 32.625 7.275 32.625 12.75V25.5C32.625 30.975 29.475 34.125 24 34.125ZM12 6.375C7.71 6.375 5.625 8.46 5.625 12.75V25.5C5.625 29.79 7.71 31.875 12 31.875H24C28.29 31.875 30.375 29.79 30.375 25.5V12.75C30.375 8.46 28.29 6.375 24 6.375H12Z" fill="#002FD3"/>
                         </svg>
                         <div class="date-input">
-                            <input type="text" class="today" name="date" id="date-range-picker-start">
+                            {{ form.from_date(type="text", class="today", id="date-range-picker-start") }}
                             <span>-</span>
-                            <input type="text" class="today" name="date" id="date-range-picker-end">
+                            {{ form.to_date(type="text", class="today", id="date-range-picker-end") }}
                         </div>
                         <div id="cal2" style="display:none;"></div>
                 </div>
@@ -62,17 +57,29 @@
             </div>
             <div class="push80 hidden-xss"></div>
             <div class="push40 visible-xss"></div>
-            <button class="button">Вывести отчет</button>
+            {{ form.submit(class="button") }}
             <div class="push90 hidden-xss"></div>
             <div class="push40 visible-xss"></div> 
             <div class="bottom-inputs">
                 <div class="form-group">
                     <label class="label"  for="done_req">Заявок выполнено</label>
-                    <input name="done_req" type="text" class="form-control" readonly id="done_req"/>
+                    {% with apps = get_flashed_messages(category_filter=["applications_count"]) %}
+                        {% if apps %}
+                            <input name="done_req" type="text" class="form-control" readonly id="done_req" value="{{ apps[0] }}"/>
+                        {% else %}
+                                <input name="done_req" type="text" class="form-control" readonly id="done_req"/>
+                        {% endif %}
+                    {% endwith %}
                 </div>
                 <div class="form-group">
                     <label class="label"  for="repeat_req">Повторных заявок</label>
-                    <input name="repeat_req" type="text" class="form-control" readonly id="repeat_req"/>
+                    {% with return_apps = get_flashed_messages(category_filter=['return_applications']) %}
+                        {% if return_apps %}
+                            <input name="repeat_req" type="text" class="form-control" readonly id="repeat_req" value="{{ return_apps[0] }}"/>
+                        {% else %}
+                            <input name="repeat_req" type="text" class="form-control" readonly id="repeat_req"/>
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
             <div class="push90 hidden-xss"></div>

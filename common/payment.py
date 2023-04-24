@@ -302,3 +302,30 @@ def check_subscriptions():
             db.session.commit()
         else:
             continue
+
+def get_user_debt(user_id: int):
+    user = db.session.query(User).get(user_id)
+    sub = db.session.query(Subscription).get(user.subscription_id)
+    if sub.active == 1:
+        return {
+            'error': '',
+            'message': 'None'
+        }
+    
+    end_date = sub.end_date
+    today = datetime.today().date()
+    tariff = db.session.query(Tariff).get(sub.tariff_id)
+    add_period_days = tariff.price / 30
+    
+    if end_date < today:
+        dif = today - end_date
+        debt = dif.days * add_period_days
+        return {
+            'error': '',
+            'message': debt
+        }
+    else:
+        return {
+            'error': '',
+            'message': 'None'
+        }

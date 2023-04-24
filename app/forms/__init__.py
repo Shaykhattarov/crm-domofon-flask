@@ -1,3 +1,3 @@
 from .common import UserLogin, UserRegistration
 from .organization import OrganizationCreateAddress, OrganizationChangeIndividualCode
-from .operator import OperatorPay, CreateApplicationForm, CreateApplicationReportForm, ChangeApplicationForm
+from .operator import OperatorPay, CreateApplicationForm, CreateApplicationReportForm, ChangeApplicationForm, CreateMasterReportForm, ViewReportMasterForm, ViewReportApplicationForm

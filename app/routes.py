@@ -6,12 +6,13 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app.models import User, Tariff
 from app.forms import UserLogin, UserRegistration
 from app.forms import OrganizationCreateAddress, OrganizationChangeIndividualCode
-from app.forms import OperatorPay, CreateApplicationReportForm, CreateApplicationForm, ChangeApplicationForm
+from app.forms import OperatorPay, CreateApplicationForm, ChangeApplicationForm, CreateMasterReportForm, ViewReportMasterForm, ViewReportApplicationForm
 from common.authorization import authentication, create_user
 from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list, get_individual_code
 from common.document import upload_document
 from common.payment import operator_pay_lk, equiring, successfull_payment, get_payments, check_subscriptions
 from common.application import count_application, create_application, change_application
+from common.report import create_report, view_report_about_master, view_report_about_applications, view_report_about_payments
 
 
 
@@ -215,7 +216,6 @@ def operator_create_order():
     data = {}
     form: CreateApplicationForm = CreateApplicationForm()
     form.add_master_choices()
-    form.add_address_choices()
     data['id']: int = count_application() + 1
     data['address'] = generate_address_help_list()
     if form.validate_on_submit():
@@ -270,12 +270,15 @@ def operator_report_master():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
     
-    if request.method == 'POST':
-        app_id = request.form.get('number')
-        status = request.form.get('status')
-        master = request.form.get('master')
-
-    return render_template('/operator/report-master.html')
+    form = CreateMasterReportForm()
+    form.add_application_choices()
+    form.add_status_choices()
+    form.add_master_choices()
+    if form.validate_on_submit():
+        result = create_report(app_id=form.number.data, status_id=form.status.data, master_id=form.master.data, addition=form.addition.data, image=form.image.data, date=form.date.data)
+        flash('Отчет успешно сохранен!')
+        return redirect(url_for('operator_report_master'))
+    return render_template('/operator/report-master.html', form=form)
 
 
 
@@ -284,7 +287,14 @@ def operator_report_masters():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
     
-    return render_template('/operator/report-masters.html')
+    form = ViewReportMasterForm()
+    form.add_master_choices()
+    if form.validate_on_submit():
+        result = view_report_about_master(master_id=form.master.data, from_date=form.from_date.data, to_date=form.to_date.data)
+        flash(result[0],'applications_count')
+        flash(result[1], 'return_applications')
+        return redirect(url_for('operator_report_masters'))
+    return render_template('/operator/report-masters.html', form=form)
 
 
 
@@ -292,17 +302,39 @@ def operator_report_masters():
 def operator_report_pays():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
+    
+    data = {}
+    form = ViewReportApplicationForm()
+    data['address'] = generate_address_help_list()
+    if form.validate_on_submit():
+        result = view_report_about_payments(address=form.address.data, appartment=form.apartment.data, from_date=form.from_date.data, to_date=form.to_date.data)
+        if result['error'] is None or result['error'] == '':
+            flash(result['message'][0], 'debt')
+            flash(result['message'][1], 'option')
+            flash(result['message'][2], 'tariff')
+            return redirect(url_for('operator_report_pays'))
+        else:
+            flash(result['message'], 'error')
+            return redirect(url_for('operator_report_pays'))
 
-    return render_template('/operator/report-pays.html')
+    return render_template('/operator/report-pays.html', form=form, data=data)
 
 
 
-@app.route('/operator-report-request')
+@app.route('/operator-report-request', methods=['GET', 'POST'])
 def operator_report_request():
     if not current_user.is_authenticated and current_user.role_id != 2:
         return redirect(url_for('login'))
     
-    return render_template('/operator/report-request.html')
+    data = {}
+    form = ViewReportApplicationForm()
+    data['address'] = generate_address_help_list()
+    if form.validate_on_submit():
+        result = view_report_about_applications(address=form.address.data, apartment=form.apartment.data, from_date=form.from_date.data, to_date=form.to_date.data)
+        flash(result[0],'applications_count')
+        flash(result[1], 'return_applications')
+    
+    return render_template('/operator/report-request.html', form=form, data=data)
 
 
 
