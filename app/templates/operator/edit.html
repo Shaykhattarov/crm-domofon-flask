@@ -7,7 +7,8 @@
 {% block Body %}
 <section class="main-section">
     <div class="container">
-        <form class="main-inner">
+        <form class="main-inner" enctype="multipart/form-data" method="POST">
+            {{ form.hidden_tag() }}
             <div class="title date-title">
                 Заявка на ремонт
                 <div class="date">
@@ -23,7 +24,7 @@
                         <path d="M30.75 14.7598H5.25C4.635 14.7598 4.125 14.2498 4.125 13.6348C4.125 13.0198 4.635 12.5098 5.25 12.5098H30.75C31.365 12.5098 31.875 13.0198 31.875 13.6348C31.875 14.2498 31.365 14.7598 30.75 14.7598Z" fill="#002FD3"/>
                         <path d="M24 34.125H12C6.525 34.125 3.375 30.975 3.375 25.5V12.75C3.375 7.275 6.525 4.125 12 4.125H24C29.475 4.125 32.625 7.275 32.625 12.75V25.5C32.625 30.975 29.475 34.125 24 34.125ZM12 6.375C7.71 6.375 5.625 8.46 5.625 12.75V25.5C5.625 29.79 7.71 31.875 12 31.875H24C28.29 31.875 30.375 29.79 30.375 25.5V12.75C30.375 8.46 28.29 6.375 24 6.375H12Z" fill="#002FD3"/>
                     </svg>
-                    <input type="text" class="today" name="date" id="date-picker">
+                    {{ form.date(class="today", id="date-picker")}}
                     <div id="cal1" style="display:none;"></div>
                 </div>
             </div>
@@ -32,22 +33,22 @@
             <div id="calendar"></div>
             <div class="code-wrapper">
                 <div class="form-group">
-                    <label class="label"  for="number">Номер заявки</label>
-                    <input name="number" type="text" class="form-control" id="number"/>
+                    {{ form.number.label(class="label", for="number") }}
+                    {{ form.number(type="text", class="form-control", id="number") }}
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="status">Статус</label>
-                    <input name="status" type="text" class="form-control" id="status"/>
+                    {{ form.status.label(class="label", for="status") }}
+                    {{ form.status(type="text", class="form-control select-styler", id="status") }}
                 </div>
                 <div class="form-group">
-                    <label class="label"  for="problem">Проблема</label>
-                    <input name="problem" type="text" class="form-control" id="problem"/>
+                    {{ form.problem.label(class="label", for="problem") }}
+                    {{ form.problem(type="text", class="form-control", id="problem") }}
                 </div>
-
                 <div class="form-group">
                     <div class="push20 visible-xss"></div>
                     <div class="file-input fileInput" id="fileInputWrap">
                         <input type="file" id="fileInput"  accept="image/jpeg,image/png,image/gif" name="fileInput[]" />
+                        {{ form.image(type="file", id="fileInput", accept="image/jpeg,image/png,image/gif")}}
                         <label for="fileInput">
                             <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19.4998 23.2917C16.2065 23.2917 13.5415 20.6267 13.5415 17.3333C13.5415 14.04 16.2065 11.375 19.4998 11.375C22.7932 11.375 25.4582 14.04 25.4582 17.3333C25.4582 20.6267 22.7932 23.2917 19.4998 23.2917ZM19.4998 14.625C18.0048 14.625 16.7915 15.8383 16.7915 17.3333C16.7915 18.8283 18.0048 20.0417 19.4998 20.0417C20.9948 20.0417 22.2082 18.8283 22.2082 17.3333C22.2082 15.8383 20.9948 14.625 19.4998 14.625Z" fill="#292D32"/>
@@ -56,16 +57,23 @@
                                 <path d="M40.0835 18.4167C39.1952 18.4167 38.4585 17.68 38.4585 16.7917V4.875C38.4585 3.98667 39.1952 3.25 40.0835 3.25C40.9718 3.25 41.7085 3.98667 41.7085 4.875V16.7917C41.7085 17.68 40.9718 18.4167 40.0835 18.4167Z" fill="#292D32"/>
                                 <path d="M5.7845 42.6834C5.2645 42.6834 4.7445 42.4234 4.44116 41.9684C3.94283 41.2317 4.13783 40.2134 4.8745 39.715L15.5562 32.5434C17.8962 30.9834 21.1245 31.1567 23.2478 32.955L23.9628 33.5834C25.0462 34.515 26.8878 34.515 27.9495 33.5834L36.9628 25.8484C39.2812 23.8767 42.8778 23.8767 45.1962 25.8484L48.7278 28.8817C49.3995 29.4667 49.4862 30.485 48.9012 31.1784C48.3162 31.85 47.2978 31.9367 46.6045 31.3517L43.0728 28.3184C41.9895 27.3867 40.1478 27.3867 39.0862 28.3184L30.0728 36.0534C27.7762 38.025 24.1578 38.025 21.8395 36.0534L21.1245 35.425C20.1278 34.58 18.4812 34.4934 17.3762 35.2517L6.71616 42.4234C6.41283 42.5967 6.08783 42.6834 5.7845 42.6834Z" fill="#292D32"/>
                             </svg>
-                                                                    
                             Добавить фото заявки
                         </label>
-                        
                     </div>
                 </div>
             </div>
-            <div class="push100 hidden-xss"></div>
+            <div class="push50 hidden-xss"></div>
+            <div class="push20 visible-xss"></div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="label" style="color:gray">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <div class="push50 hidden-xss"></div>
             <div class="push50 visible-xss"></div>
-            <button class="button">Сохранить</button>
+            {{ form.submit(class="button")}}
             <div class="push100 hidden-xss"></div>
             <div class="push50 visible-xss"></div> 
         </form>	

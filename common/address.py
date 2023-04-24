@@ -117,7 +117,7 @@ def generate_apartment_help_list(address: str):
 
 def generate_address_help_list():
     """ Генерирует списко подсказок для ввода адреса """
-    addresses: Address = db.session.query(Address).all()
+    addresses: Address = db.session.query(Address).order_by(Address.street).all()
 
     address_list: list = []
     for address in addresses:
@@ -125,3 +125,17 @@ def generate_address_help_list():
         address_list.append((str(address.id), fulladdress))
 
     return address_list
+
+
+def get_individual_code(user_id: int) -> str:
+    """ Получение индивидуального кода открытия домофона """
+    user = db.session.query(User).get(user_id)
+    if user.address_id is None:
+        return 'Отсутствует'
+    else:
+        user_address = db.session.query(UserAddress).get(user.address_id)
+        address = db.session.query(Address).get(user_address.address_id)
+        if address.individual_code is None:
+            return 'Отсутствует'
+        else:
+            return address.individual_code

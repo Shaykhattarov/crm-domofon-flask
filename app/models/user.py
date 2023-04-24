@@ -10,11 +10,11 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(320), unique=True, nullable=False)
     phone = db.Column(db.String(50), nullable=False, unique=False)
     address_id = db.Column(db.Integer, db.ForeignKey('user_address.id'))
-    payment_id = db.Column(db.Integer, db.ForeignKey('payment.id'))
+    subscription_id = db.Column(db.Integer, db.ForeignKey("subscription.id"))
     role_id = db.Column(db.Integer, db.ForeignKey('user_role.id'))
 
     def __repr__(self):
-        return '<User {}>'.format(self.name)
+        return '<User {} - {}>'.format(self.id, self.name)
     
 
 
