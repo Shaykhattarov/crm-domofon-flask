@@ -9,7 +9,7 @@ from app.forms import OrganizationCreateAddress, OrganizationChangeIndividualCod
 from app.forms import OperatorPay, CreateApplicationForm, ChangeApplicationForm, CreateMasterReportForm, ViewReportMasterForm, ViewReportApplicationForm
 from common.authorization import authentication, create_user
 from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list, get_individual_code
-from common.document import upload_document
+from common.document import upload_document, view_document
 from common.payment import operator_pay_lk, equiring, successfull_payment, get_payments, check_subscriptions
 from common.application import count_application, create_application, change_application
 from common.report import create_report, view_report_about_master, view_report_about_applications, view_report_about_payments
@@ -73,15 +73,17 @@ def profile():
     
     role_id = int(session.get('role_id'))
 
-    check_subscriptions()
+    
 
     match role_id:
         case 1:
             individual_code = get_individual_code(user_id=current_user.id)
             return render_template('/client/profile.html', individual_code=individual_code)
         case 2:
+            #check_subscriptions() # Проверка и удаление подписки по истечению срока
             return render_template('/operator/profile.html')
         case 3:
+            #check_subscriptions() # Проверка и удаление подписки по истечению срока
             return render_template('/organization/profile.html')
         case 4:
             return render_template('/master/profile.html')
@@ -363,10 +365,17 @@ def organization_creating_address():
     form: OrganizationCreateAddress = OrganizationCreateAddress()
     form.add_equipment_choices()
     form.add_tariff_choices()
+    form.add_district_choices()
     if form.validate_on_submit():
-        print('[INFO] Форма создания адреса провалидирована!')
-        address_id = save_address(street=form.street.data, house=form.house.data, front_door=form.front_door.data, tariff_id=form.tariff.data, equipment_list_id=form.equipment.data, serial_code=form.serial_code.data)
-        print(address_id)
+        
+        address_id = save_address(street=form.street.data, house=form.house.data, front_door=form.front_door.data, apartment_from=int(form.from_apartment.data), apartment_to=int(form.to_apartment.data), 
+                                  tariff_id=form.tariff.data, equipment_list_id=form.equipment.data, serial_code=form.serial_code.data)
+        if not address_id:
+            flash('Произошла ошибка!')
+        else:
+            flash('Адреса успешно добавлены!')
+            return redirect(url_for('organization_creating_address'))
+        
     return render_template('/organization/creating-address.html', form=form)
 
 
@@ -418,6 +427,20 @@ def organization_docs():
             flash("Документ не был выбран! Или произошла ошибка в время передачи файла!")
 
     return render_template('/organization/docs.html')
+
+
+
+@app.route('/organization-view-docs', methods=['GET', 'POST'])
+def organization_view_docs():
+    if not current_user.is_authenticated and current_user.role_id != 3:
+        return redirect(url_for('login'))
+    
+    filelist = view_document()
+    if filelist['status']:
+        return render_template('/organization/view-docs.html', filelist=filelist['message'])
+    else:
+        return render_template('/organization/view-docs.html', filelist=False)
+
 
 
 

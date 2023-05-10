@@ -30,9 +30,41 @@
                     {{ form.phone(class="form-control", placeholder="Введите телефон") }}
                 </div>
                 <div class="form-group">
-                    {{ form.address(class="form-control", list="address_list", placeholder="Введите адрес") }}
-                    <datalist id="address_list">
-                        {% for option in options %}
+                    {{ form.street(class="form-control", list="street_list", placeholder="Введите улицу") }}
+                    <datalist id="street_list">
+                        {% for option in options['street'] %}
+                            <option id="{{ option[0] }}">{{ option[1] }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.district(class="form-control", list="district_list", placeholder="Выберите район") }}
+                    <datalist id="district_list">
+                        {% for option in options['district'] %}
+                            <option id="{{ option[0] }}">{{ option[1] }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.house(class="form-control", list="house_list", placeholder="Введите дом") }}
+                    <datalist id="house_list">
+                        {% for option in options['house'] %}
+                            <option id="{{ option[0] }}">{{ option[1] }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.front_door(class="form-control", list="front_door_list", placeholder="Введите адрес") }}
+                    <datalist id="front_door_list">
+                        {% for option in options['front_door'] %}
+                            <option id="{{ option[0] }}">{{ option[1] }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.apartment(class="form-control", list="apartment_list", placeholder="Введите адрес") }}
+                    <datalist id="apartment_list">
+                        {% for option in options['apartment'] %}
                             <option id="{{ option[0] }}">{{ option[1] }}</option>
                         {% endfor %}
                     </datalist>

@@ -1,5 +1,5 @@
 from app import db
-from app.models import User, UserAddress, Address, Equipment
+from app.models import User, Address, Equipment
 
 
 
@@ -30,11 +30,23 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
     return result
 
 
-def save_address(street: str, house: str, front_door: str, tariff_id: str, equipment_list_id: str, serial_code: str):
+def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, equipment_list_id: str, serial_code: str):
     """ Сохранение адреса и добавленного оборудования в Базу данных """
 
-    preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).first()
+    preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter(Address.apartment <= apartment_to, Address.apartment >= apartment_from).first()
     if preaddress is not None:
+        equipment: Equipment = Equipment(
+            equipment_id=equipment_list_id,
+            serial_code=serial_code
+        )
+        
+        db.session.add(equipment)
+        db.session.commit()
+        
+        preaddress.tariff_id = tariff_id
+        preaddress.equipment_id = equipment.id
+
+        db.session.commit() 
         return preaddress.id
 
     equipment: Equipment = Equipment(
@@ -44,19 +56,31 @@ def save_address(street: str, house: str, front_door: str, tariff_id: str, equip
 
     db.session.add(equipment)
     db.session.commit()
+    
+    if apartment_from < apartment_to:
+        return False
+    if apartment_to <= 0 or apartment_from < 0:
+        return False 
 
-    address: Address = Address(
-        street=street,
-        house=house,
-        front_door=front_door,
-        tariff_id=tariff_id,
-        equipment_id=equipment.id
-    )
+    try:
+        for apart in range(apartment_from, apartment_to + 1):       
+            address: Address = Address(
+                street=street,
+                house=house,
+                apartment=apart,
+                front_door=front_door,
+                tariff_id=tariff_id,
+                equipment_id=equipment.id
+            )
+            db.session.add(address)
 
-    db.session.add(address)
-    db.session.commit()
-
-    return address.id
+    except Exception as err:
+        print(f'[ERROR] Error in creating address: {err}')
+    else:
+        db.session.commit()
+        return address.id
+    
+    return False
 
 
 def change_address_individual_code(address: str, code: str):

@@ -3,7 +3,6 @@ from app.models import User
 
 
 def authentication(name: str, email: str) -> dict | None:
-    print(name, email)
     try:
         user = db.session.query(User).filter_by(name=name, email=email).first()
     except Exception as err:

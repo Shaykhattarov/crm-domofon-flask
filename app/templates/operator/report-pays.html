@@ -55,7 +55,6 @@
                 </div>
             </div>
             </div>
-            
             {% with error = get_flashed_messages(category_filter=['error']) %}
                 {% if error %}
                     <div class="push80 hidden-xss"></div>
@@ -88,7 +87,6 @@
                             <input name="pay" type="text" class="form-control" readonly id="pay"/>
                         {% endif %}
                     {% endwith %}
-                    
                 </div>
                 <div class="form-group">
                     <label class="label"  for="tarif">Тариф</label>
@@ -99,7 +97,6 @@
                             <input name="tarif" type="text" class="form-control" readonly id="tarif"/>
                         {% endif %}
                     {% endwith %}
-                    
                 </div>
             </div>
             <div class="push90 hidden-xss"></div>

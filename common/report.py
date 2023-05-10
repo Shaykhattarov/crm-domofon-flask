@@ -5,7 +5,7 @@ from datetime import datetime
 
 from app.models.tariff import Tariff
 from .address import parse_address
-from app.models import Address, User, Payment, UserAddress, Subscription
+from app.models import Address, User, Payment, Subscription
 from .payment import get_user_debt
 
 def create_report(app_id: int, status_id: int, master_id: int, addition: str, image: str, date: str):

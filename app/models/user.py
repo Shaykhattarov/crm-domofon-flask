@@ -9,7 +9,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(320), unique=True, nullable=False)
     phone = db.Column(db.String(50), nullable=False, unique=False)
-    address_id = db.Column(db.Integer, db.ForeignKey('user_address.id'))
+    address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
     subscription_id = db.Column(db.Integer, db.ForeignKey("subscription.id"))
     role_id = db.Column(db.Integer, db.ForeignKey('user_role.id'))
 

@@ -2,7 +2,7 @@ from app import db, app
 import requests, json, math
 from .address import parse_address
 from datetime import datetime, timedelta
-from app.models import User, UserAddress, Address, Payment, Tariff, Subscription
+from app.models import User, Address, Payment, Tariff, Subscription
 
 
 

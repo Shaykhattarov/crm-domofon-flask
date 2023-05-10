@@ -1,0 +1,30 @@
+{% extends 'base_lk.html' %}
+
+{% block Header %}
+	{% include '/headers/profile.html' %}
+{% endblock %}
+
+{% block Body %}
+<section class="main-section">
+    <div class="container">
+        <div class="main-inner">
+            <div class="title">
+                Загруженные документы
+            </div>
+            <div class="push100 hidden-xss"></div>
+            <div class="push25 visible-xss"></div>
+            <ul class="lk">
+                {% if filelist %}
+                    {% for file in filelist: %}
+                    <li value="{{ id }}">
+                        <a href="{{ file.name_on_server }}">{{ file.name }}</a>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li>Список пуст</li>
+                {% endif %}
+            </ul>
+        </div>	
+    </div>
+</section>
+{% endblock %}
