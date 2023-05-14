@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FileField, SelectField
 from wtforms.validators import DataRequired, Length
 from app.models import Tariff, User, Application, ApplicationStatus
-from common.address import generate_address_help_list
+from common import generate_address_help_list
 from app import db
 
 

@@ -97,7 +97,6 @@ def change_address_individual_code(address: str, code: str):
         return None
     
 
-
 def parse_address(address: str):
     """ Парсим адрес для изменения кода подъезда """
     address = address.split(', ')
@@ -107,7 +106,6 @@ def parse_address(address: str):
     front_door = address[2].replace('п. ', '')
 
     return [street, house, front_door]
-
 
 
 def generate_apartment_help_list(address: str):
@@ -123,7 +121,7 @@ def generate_apartment_help_list(address: str):
     if address is None:
         return None
     
-    user_addresses = db.session.query(UserAddress).filter_by(address_id=address.id).all()
+    user_addresses = db.session.query(Address).filter_by(address_id=address.id).all()
 
     if user_addresses is None or len(user_addresses) == 0:
         return None
@@ -138,17 +136,17 @@ def generate_apartment_help_list(address: str):
         return None
 
 
-
-def generate_address_help_list():
-    """ Генерирует списко подсказок для ввода адреса """
-    addresses: Address = db.session.query(Address).order_by(Address.street).all()
-
-    address_list: list = []
-    for address in addresses:
-        fulladdress: str = f"ул. {address.street}, д. {address.house}, п. {address.front_door}"
-        address_list.append((str(address.id), fulladdress))
-
-    return address_list
+#
+#def generate_address_help_list():
+#    """ Генерирует списко подсказок для ввода адреса """
+#    addresses: Address = db.session.query(Address).order_by(Address.street).all()
+#
+#    address_list: list = []
+#    for address in addresses:
+#        fulladdress: str = f"ул. {address.street}, д. {address.house}, п. {address.front_door}"
+#        address_list.append((str(address.id), fulladdress))
+#
+#    return address_list
 
 
 def get_individual_code(user_id: int) -> str:
@@ -157,9 +155,8 @@ def get_individual_code(user_id: int) -> str:
     if user.address_id is None:
         return 'Отсутствует'
     else:
-        user_address = db.session.query(UserAddress).get(user.address_id)
-        address = db.session.query(Address).get(user_address.address_id)
-        if address.individual_code is None:
+        address = db.session.query(Address).get(user.address_id)
+        if address.code is None:
             return 'Отсутствует'
         else:
-            return address.individual_code
+            return address.code

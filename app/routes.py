@@ -8,11 +8,12 @@ from app.forms import UserLogin, UserRegistration
 from app.forms import OrganizationCreateAddress, OrganizationChangeIndividualCode
 from app.forms import OperatorPay, CreateApplicationForm, ChangeApplicationForm, CreateMasterReportForm, ViewReportMasterForm, ViewReportApplicationForm
 from common.authorization import authentication, create_user
-from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_address_help_list, generate_apartment_help_list, get_individual_code
+from common.address import get_user_address_list, prepare_user_address_list, save_address, change_address_individual_code, generate_apartment_help_list, get_individual_code
 from common.document import upload_document, view_document
 from common.payment import operator_pay_lk, equiring, successfull_payment, get_payments, check_subscriptions
 from common.application import count_application, create_application, change_application
 from common.report import create_report, view_report_about_master, view_report_about_applications, view_report_about_payments
+from common import generate_address_help_list, generate_houses_help_list, generate_streets_help_list
 
 
 
@@ -46,22 +47,47 @@ def login():
             return redirect(url_for('login'))
     return render_template('/common/login.html', form=form)
 
-
-
+@app.route('/reg', methods=['GET', 'POST'])
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     
     form = UserRegistration()
-    options = generate_address_help_list()
+    options= generate_address_help_list()
+    form.add_district_choices() # Добавление выбора районов
     if form.validate_on_submit():
-        result: bool = create_user(name=form.name.data, email=form.email.data, address=form.address.data, phone=form.phone.data)
+        if form.district.data == 0:
+            flash('Выберите район')
+            return redirect('registration')
+        
+        result: bool = create_user(name=form.name.data, email=form.email.data, phone=form.phone.data, street=form.street.data, district=form.district.data, house=form.house.data, 
+                                   front_door=form.front_door.data, apartment=form.apartment.data)
+        
         if result['status'] == 'good':
             return redirect(url_for('login'))
         else:
             flash(result['message'])
+            
     return render_template('/common/registration.html', form=form, options=options)
+
+
+@app.route('/ajax/registration/district', methods=['GET'])
+def ajax_regsitration_support_by_district():
+    district_id = request.args.get('district_id')
+    if district_id is None:
+        return 400
+    streets = generate_streets_help_list()
+    return json.dumps(streets)
+
+
+@app.route('/ajax/registration/street', methods=['GET'])
+def ajax_registration_support_by_street():
+    street = request.args.get('street')
+    if street is None:
+        return 400
+    houses = generate_houses_help_list(street=street)
+    return json.dumps(houses)
 
 
 
@@ -73,10 +99,9 @@ def profile():
     
     role_id = int(session.get('role_id'))
 
-    
-
     match role_id:
         case 1:
+            check_subscriptions()
             individual_code = get_individual_code(user_id=current_user.id)
             return render_template('/client/profile.html', individual_code=individual_code)
         case 2:
@@ -176,7 +201,7 @@ def tariffs_call_month():
 
 
 @app.route('/successfull-payment', methods=['GET', 'POST'])
-def successfull_payment():
+def success_payment():
     response = successfull_payment(request)
     if response['error'] == '':
         return redirect(url_for('profile'))
