@@ -30,15 +30,39 @@
                     {{ form.phone(class="form-control", placeholder="Введите телефон") }}
                 </div>
                 <div class="form-group">
-                    {{ form.address(class="form-control", list="address_list", placeholder="Введите адрес") }}
-                    <datalist id="address_list">
+                    {{ form.email(class="form-control", placeholder="Введите email") }}
+                </div>
+                <div class="form-group">
+                    {{ form.district(class="form-control select-styler", list="district_list", placeholder="Выберите район") }}
+                </div>
+                <div class="push40"></div>
+                <div class="form-group">
+                    {{ form.street(class="form-control", id="street", list="street_list", placeholder="Введите улицу") }}
+                    <datalist id="street_list"></datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.house(class="form-control", list="house_list", placeholder="Введите дом") }}
+                    <datalist id="house_list">
                         {% for option in options %}
-                            <option id="{{ option[0] }}">{{ option[1] }}</option>
+                            <option id="{{ option['id'] }}">{{ option["house"] }}</option>
                         {% endfor %}
                     </datalist>
                 </div>
                 <div class="form-group">
-                    {{ form.email(class="form-control", placeholder="Введите email") }}
+                    {{ form.front_door(class="form-control", list="front_door_list", placeholder="Введите подъезд") }}
+                    <datalist id="front_door_list">
+                        {% for option in options['front_door'] %}
+                            <option id="{{ option['id'] }}">{{ option["front_door"] }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.apartment(class="form-control", list="apartment_list", placeholder="Введите квартиру") }}
+                    <datalist id="apartment_list">
+                        {% for option in options['apartment'] %}
+                            <option id="{{ option['id'] }}">{{ option["apartment"] }}</option>
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <div class="form=group">
                     {{ form.recaptcha }}
@@ -57,4 +81,21 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block Scripts %}
+<script>
+    const streetList = document.getElementById('street_list');
+    const streetSelect = document.getElementById('street');
+    const district_url = document.location.protocol + '//' + document.location.host + '/ajax/registration/district'
+    
+    streetSelect.addEventListener('change', function(event) {
+        console.log('Hello');
+        $.ajax({
+            async: true,
+            method: 'GET',
+            url: url + '?district_id=' + this.value
+        });
+    });
+</script>
 {% endblock %}

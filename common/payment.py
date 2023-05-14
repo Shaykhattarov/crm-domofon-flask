@@ -2,7 +2,7 @@ from app import db, app
 import requests, json, math
 from .address import parse_address
 from datetime import datetime, timedelta
-from app.models import User, UserAddress, Address, Payment, Tariff, Subscription
+from app.models import User, Address, Payment, Tariff, Subscription
 
 
 
@@ -203,7 +203,6 @@ def __save_order(user_id, amount):
 
 def equiring(user_id: int, amount: int):
     """ Эквайринг """
-
     url = app.config['EQUIRE_URL_CREATE']
     response = {
         'error': '',
@@ -211,10 +210,12 @@ def equiring(user_id: int, amount: int):
     }
 
     user = db.session.query(User).get(user_id)
-    user_address = db.session.query(UserAddress).get(user.address_id)
-    address = db.session.query(Address).get(user_address.address_id)
+    address = db.session.query(Address).get(user.address_id)
+    if address is None:
+        return {'error': 'error', 'message': 'Адрес неизвестен'}
+
     city = 'Москва'
-    address = f"ул. {address.street}, д. {address.house}, п. {address.front_door}, кв. {user_address.apartment}"
+    address = f"ул. {address.street}, д. {address.house}, п. {address.front_door}, кв. {address.apartment}"
 
     headers = {'Content-type': 'application/json', 'Accept': '*/*'}
 
@@ -294,9 +295,7 @@ def check_subscriptions():
     for user in users:
         if user.subscription_id is None:
             continue
-
         sub = db.session.query(Subscription).get(user.subscription_id)
-        
         if sub.end_date < datetime.date(datetime.today()):
             sub.active = 0
             db.session.commit()

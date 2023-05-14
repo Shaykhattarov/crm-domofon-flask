@@ -9,6 +9,7 @@ def count_application() -> int:
     app = db.session.query(Application).count()
     return app
 
+
 def change_application(num: str, date: str, problem: str, status_id: int, image: object):
     file = upload_application(image)
 
@@ -23,7 +24,6 @@ def change_application(num: str, date: str, problem: str, status_id: int, image:
 
 def create_application(address: str, apartment: str, master_id: int, date: str, problem: str, image: object) -> dict:
     """ Создание новой заявки на ремонт """
-
     file = upload_application(image)
     date = datetime.strptime(date, "%d.%m.%Y").date()
     application = Application(

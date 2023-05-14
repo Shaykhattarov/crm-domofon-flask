@@ -3,15 +3,18 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from app import db
-from app.models import EquipmentList, Tariff
+from app.models import EquipmentList, Tariff, District
 
 
 
 class OrganizationCreateAddress(FlaskForm):
     street = StringField("Улица", validators=[DataRequired()])
+    district = SelectField("Район", choices=[], validators=[DataRequired()])
     house = StringField("Дом", validators=[DataRequired()])
     front_door = StringField("Подъезд")
     equipment = SelectField("Оборудование", choices=[])
+    to_apartment = StringField("Квартиры по ", validators=[DataRequired()])
+    from_apartment = StringField("Квартиры с  ", validators=[DataRequired()])
     serial_code = StringField("Серийный номер блока вызова", validators=[DataRequired()])
     tariff = SelectField("Тарифы на обслуживание", choices=[])
     submit = SubmitField("Создать")
@@ -44,6 +47,19 @@ class OrganizationCreateAddress(FlaskForm):
         else:
             self.tariff.choices = [('0', 'Empty')]
 
+    def add_district_choices(self):
+        """ Добавление выбора в поле Тариф """
+        district = []
+        try:
+            district = db.session.query(District).all()
+        except Exception as err:
+            print(err)
+
+        if district is not None and len(district) != 0:
+            for el in district:
+                self.district.choices.append((el.id, el.name))
+        else:
+            self.district.choices = [('0', 'Empty')]
 
 
 class OrganizationChangeIndividualCode(FlaskForm):

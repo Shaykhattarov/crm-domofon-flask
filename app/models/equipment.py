@@ -21,3 +21,4 @@ class EquipmentList(db.Model):
 
     def __repr__(self):
         return "<EquipmentList {}>".format(self.name)
+    

@@ -16,14 +16,28 @@
                     <datalist id="address_list"></datalist>
                 </div>
                 <div class="form-group">
-                    {{ form.front_door.label(class="label", for="porch") }}
-                    {{ form.front_door(class="form-control select-styler", id="porch", list="porch_list") }}
-                    <datalist id="porch_list"></datalist>
+                    {{ form.district.label(class="label", for="district") }}
+                    {{ form.district(class="form-control select-styler", id="district", list="district_list") }}
+                    <datalist id="district_list"></datalist>
                 </div>
                 <div class="form-group">
                     {{ form.house.label(class="label", for="house") }}
                     {{ form.house(class="form-control select-styler", id="house", list="house_list") }}
                     <datalist id="house_list"></datalist>
+                </div>
+
+                <div class="form-group">
+                    {{ form.front_door.label(class="label", for="porch") }}
+                    {{ form.front_door(class="form-control select-styler", id="porch", list="porch_list") }}
+                    <datalist id="porch_list"></datalist>
+                </div>
+                <div class="form-group">
+                    {{ form.from_apartment.label(class="label", for="from_apartment") }}
+                    {{ form.from_apartment(class="form-control", type="number", id="from_apartment") }}
+                </div>
+                <div class="form-group">
+                    {{ form.to_apartment.label(class="label", for="to_apartment") }}
+                    {{ form.to_apartment(class="form-control", type="number", id="to_apartment") }}
                 </div>
             </div>
             <div class="push80 hidden-xss"></div>
@@ -63,6 +77,13 @@
                     </div>
                 </div>
             </div>
+            {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="label" style="color:gray">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+            {% endwith %}
             <div class="push60 hidden-xss"></div>
             <div class="push50 visible-xss"></div>
             {{ form.submit(class="button") }}
