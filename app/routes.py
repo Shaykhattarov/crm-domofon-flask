@@ -1,5 +1,4 @@
-import json
-import math
+import json, math
 from app import app, db, login_manager
 from flask import render_template, request, flash, redirect, url_for, session
 from flask_login import login_required, login_user, logout_user, current_user
@@ -47,6 +46,8 @@ def login():
             return redirect(url_for('login'))
     return render_template('/common/login.html', form=form)
 
+
+
 @app.route('/reg', methods=['GET', 'POST'])
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
@@ -73,7 +74,7 @@ def registration():
 
 
 @app.route('/ajax/registration/district', methods=['GET'])
-def ajax_regsitration_support_by_district():
+def ajax_registration_support_by_district():
     district_id = request.args.get('district_id')
     if district_id is None:
         return 400
@@ -465,7 +466,6 @@ def organization_view_docs():
         return render_template('/organization/view-docs.html', filelist=filelist['message'])
     else:
         return render_template('/organization/view-docs.html', filelist=False)
-
 
 
 
