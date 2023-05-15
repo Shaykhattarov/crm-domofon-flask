@@ -3,7 +3,7 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from app import db
-from app.models import EquipmentList, Tariff, District
+from app.models import EquipmentList, Tariff, District, Address
 
 
 
@@ -67,8 +67,7 @@ class OrganizationChangeIndividualCode(FlaskForm):
     district = SelectField("Район", choices=[], validators=[DataRequired()])
     house = StringField("Дом", validators=[DataRequired()])
     front_door = StringField("Подъезд")
-    equipment = SelectField("Оборудование", choices=[])
-    apartment = SelectField("Квартира")
+    apartment = StringField("Квартира")
     code = StringField("Код", validators=[DataRequired(), Length(min=4, max=10)])
     submit = SubmitField("Сохранить")
 
