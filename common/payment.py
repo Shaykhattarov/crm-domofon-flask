@@ -89,56 +89,155 @@ def operator_pay_lk(address: str, apartment: str, amount: int, tariff_id: str=1)
         
 
 
-def successfull_payment(request):
+def successfull_payment(order_id=None):
     response = {
         'error': ''
     }
-    req_result = request.get_data()
-    number_order = req_result['order_id']
-    if number_order is None:
+
+    if order_id is None:
         response['error'] = 'error'
         response['message'] = 'Неизвестный номер заказа'
         return response
 
-    url = f"{app.config['EQUIRE_GET_ORDER']}/{number_order}" 
+    url = f"{app.config['EQUIRE_GET_ORDER']}/{order_id}" 
     headers = {'Content-type': 'application/json'}
-
+ 
     answer = requests.get(url, headers=headers)
     response_answer = json.loads(answer.text)
     order_response = response_answer.get('orders', {})
-
-    if order_response is not None:
-        status_payment = order_response[0].get('status', False)
-        merchant_order_id = order_response[0].get('merchant_order_id', None)
-        amount = order_response[0].get(amount, None)
-        if merchant_order_id is not None:
-            if status_payment:
-                if status_payment == "charged":
-                    resp = __save_order(merchant_order_id, amount=amount)
-                    if resp['error'] == '':
-                       return response
-                    else:
-                       return resp['message']
-                else:
-                    response['message'] = 'Неизвестный статус'
-                    return response
-
-
-def __save_order(user_id, amount):
-    """ Сохранение оплаты """
     
+    if order_response is None or order_response == {}:
+        return {'error': 'error', 'message': 'Нет ответа от эквайринга!'}
+    
+    status_payment = order_response[0].get('status', False)
+    merchant_order_id = order_response[0].get('merchant_order_id', None)
+    amount = float(order_response[0].get('amount', None))
+
+    if merchant_order_id is not None:
+        if status_payment:
+            if status_payment == "charged":
+                resp = __save_order(merchant_order_id, price=amount)
+                if resp['error'] == '':
+                   return response
+                else:
+                   return resp['message']
+            else:
+                response = {'error': 'error', 'status': 'rejected', 'message': 'Оплата не пройдена!'}
+                return response
+
+
+
+def __save_order(user_id, price):
+    """ Сохранение оплаты """
     user = db.session.query(User).get(user_id)
-    tariff = db.session.query(Tariff).filter_by(amount=amount).first()
+    if user is None:
+        return {'error': 'error', 'message': 'Пользователя с таким id не существует!'}
+    
+    tariffs = db.session.query(Tariff).all()
+    if tariffs is None or tariffs == []:
+        return {'error': 'error', 'message': 'Тарифы не найдены!'}
+    
+    year_period: bool = False
+    validation_tariff: bool = False
+    for tariff in tariffs:
+        if tariff.price == price:
+            validation_tariff = True
+        if (price // 12) == tariff.price:
+            validation_tariff = True
+            year_period = True
+    if not validation_tariff:
+        return {
+            'error': 'error',
+            'message': 'Тарифы не найдены!'
+        }
+    
+    if year_period:
+        option = 'Ежегодно'
+        end_date = end_date = datetime.today() + timedelta(days=365)
+    else:
+        option = 'Ежемесячно'
+        end_date = end_date = datetime.today() + timedelta(days=30)
+
+    if user.subscription_id is None:
+        sub = Subscription(
+            tariff_id=tariff.id,
+            option=option,
+            start_date=datetime.today(),
+            end_date=end_date,
+            active=1
+        )
+        db.session.add(sub)
+        
+        user.subscription_id = sub.id
+
+        payment = Payment(
+            subscription_id=sub.id,
+            date=datetime.today(),
+            period=end_date,
+            amount=price
+        )
+        db.session.add(payment)
+        db.session.commit()
+    else:
+        sub = db.session.query(Subscription).get(user.subscription_id)
+        if sub.active == 1:
+            if year_period:
+                sub.option = option
+                sub.end_date = sub.end_date + timedelta(days=365)
+            else:
+                sub.option = option
+                sub.end_date = sub.end_date + timedelta(days=30)
+            
+            sub.start_date = datetime.today()
+
+            payment = Payment(
+                subscription_id=sub.id,
+                date=sub.start_date,
+                period=sub.end_date,
+                amount=price
+            )
+            db.session.add(payment)
+            db.session.commit()
+        else:
+            if year_period:
+                sub.option = option
+                sub.end_date = sub.end_date + timedelta(days=365)
+            else:
+                sub.option = option
+                sub.end_date = sub.end_date + timedelta(days=30)
+
+            sub.start_date = datetime.today()
+            sub.active = 1
+
+            payment = Payment(
+                subscription_id=sub.id,
+                date=sub.start_date,
+                period=sub.end_date,
+                amount=price
+            )
+            db.session.add(payment)
+            db.session.commit()
+    return {
+        'error': ''
+    }
+
+
+
+"""
+def __save_order_2(user_id, amount):
+    Сохранение оплаты
+    user = db.session.query(User).get(user_id)
+    tariff = db.session.query(Tariff).filter_by(price=amount).first()
     year = False
     if tariff is None:
         year = True
-        tariff = db.session.query(Tariff).filter_by(amount=(amount // 12)).first()
+        tariff = db.session.query(Tariff).filter_by(price=(amount // 12)).first()
         if tariff is None:
             return {
                 'error': 'error',
                 'message': 'Неизвестная сумма'
             }
-        
+    
     if year:
         sub_option = "Ежегодно"
         end_date = datetime.today() + timedelta(days=365)
@@ -171,13 +270,7 @@ def __save_order(user_id, amount):
         db.session.commit()     
     else:
         sub = db.session.query(Subscription).get(user.subscription_id)
-        
-        payment = Payment (
-            subscription_id=sub.id,
-            date=datetime.today(),
-            period=end_date,
-            amount=amount
-        )
+    
 
         if sub.active == 1:
             if year:
@@ -198,7 +291,7 @@ def __save_order(user_id, amount):
     return {
         'error': ''
     }
-
+"""
 
 
 def equiring(user_id: int, amount: int):
@@ -260,6 +353,7 @@ def equiring(user_id: int, amount: int):
             }
 
 
+
 def get_payments(user_id: int) -> list[dict]:
 
     result: list = []
@@ -289,6 +383,7 @@ def get_payments(user_id: int) -> list[dict]:
     return result
 
 
+
 def check_subscriptions():
     users = db.session.query(User).filter_by(role_id=1).all()
 
@@ -301,6 +396,8 @@ def check_subscriptions():
             db.session.commit()
         else:
             continue
+
+
 
 def get_user_debt(user_id: int):
     user = db.session.query(User).get(user_id)

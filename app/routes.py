@@ -203,7 +203,8 @@ def tariffs_call_month():
 
 @app.route('/successfull-payment', methods=['GET', 'POST'])
 def success_payment():
-    response = successfull_payment(request)
+    order_id = request.args.get('order_id')
+    response = successfull_payment(order_id=order_id)
     if response['error'] == '':
         return redirect(url_for('profile'))
     else:
