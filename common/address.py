@@ -33,8 +33,9 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
 def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
     """ Сохранение адреса и добавленного оборудования в Базу данных """
 
-    preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter(Address.apartment <= apartment_to, Address.apartment >= apartment_from).first()
-    if preaddress is not None:
+    preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter(Address.apartment <= apartment_to, Address.apartment >= apartment_from).all()
+    if preaddress is not None and len(preaddress) != 0:
+        
         equipment: Equipment = Equipment(
             equipment_id=equipment_list_id,
             serial_code=serial_code
@@ -42,10 +43,10 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
         
         db.session.add(equipment)
         db.session.commit()
-        
-        preaddress.district_id = district_id
-        preaddress.tariff_id = tariff_id
-        preaddress.equipment_id = equipment.id
+        for address in preaddress:
+            address.district_id = district_id
+            address.tariff_id = tariff_id
+            address.equipment_id = equipment.id
 
         db.session.commit() 
         return preaddress.id
