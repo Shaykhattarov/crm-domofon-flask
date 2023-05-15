@@ -92,7 +92,7 @@ def change_address_individual_code(street: str, house: str, front_door: str, apa
     address = db.session.query(Address).filter_by(district_id=district).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter_by(apartment=apartment).first()
 
     if address is not None:
-        address.individual_code = code
+        address.code = code
         db.session.commit()
         return address.id
     else:
