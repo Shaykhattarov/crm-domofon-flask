@@ -22,9 +22,9 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
     result: list = []
     for address in address_list:
         if address.front_door is not None:
-            string: str = f'ул. {address.street}, д. {address.house}, п. {address.front_door}'
+            string: str = f'ул. {address.street}, д. {address.house}, п. {address.front_door}, кв. {address.apartment}'
         else:
-            string: str = f'ул. {address.street}, д. {address.house}'
+            string: str = f'ул. {address.street}, д. {address.house}, кв. {address.apartment}'
 
         result.append([address.id, string])
     return result
