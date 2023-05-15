@@ -477,12 +477,10 @@ def organization_code():
         return redirect(url_for('login'))
     
     form: OrganizationChangeIndividualCode = OrganizationChangeIndividualCode()
-    help_list = generate_address_help_list()
+    form.add_district_choices()
     if form.validate_on_submit():
-        print(form.code.data)
-        address_id = change_address_individual_code(address=form.address.data, code=form.code.data)
-        print(address_id)
-    return render_template('/organization/code.html', form=form, datalist=help_list)
+        address_id = change_address_individual_code(street=form.street.data, district=form.district.data, house=form.house.data, front_door=form.front_door, apartment=form.apartment.data, code=form.code.data)
+    return render_template('/organization/code.html', form=form)
 
 
 

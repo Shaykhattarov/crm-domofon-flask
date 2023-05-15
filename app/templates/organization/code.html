@@ -18,11 +18,6 @@
                 <div class="form-group">
                     {{ form.address.label(class="label", for="address") }}
                     {{ form.address(class="form-control select-styler", list="address_list", id="address") }}
-                    <datalist id="address_list">
-                        {% for data in datalist %}
-                            <option id="{{ data[0] }}">{{ data[1] }}</option>
-                        {% endfor %}
-                    </datalist>
                 </div>
                 <div class="form-group">
                     {{ form.code.label(class="label", for="code") }}

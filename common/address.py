@@ -86,11 +86,10 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
     return False
 
 
-def change_address_individual_code(address: str, code: str):
+def change_address_individual_code(street: str, house: str, front_door: str, apartment: str, district: int, code: str):
     """ Изменение индивидуального кода подъезда """
-    address = parse_address(address=address)
    
-    address = db.session.query(Address).filter_by(street=address[0]).filter_by(house=address[1]).filter_by(front_door=address[2]).first()
+    address = db.session.query(Address).filter_by(district_id=district).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter_by(apartment=apartment).first()
 
     if address is not None:
         address.individual_code = code

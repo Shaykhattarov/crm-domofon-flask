@@ -63,6 +63,25 @@ class OrganizationCreateAddress(FlaskForm):
 
 
 class OrganizationChangeIndividualCode(FlaskForm):
-    address = StringField("Адрес", validators=[DataRequired()])
+    street = StringField("Улица", validators=[DataRequired()])
+    district = SelectField("Район", choices=[], validators=[DataRequired()])
+    house = StringField("Дом", validators=[DataRequired()])
+    front_door = StringField("Подъезд")
+    equipment = SelectField("Оборудование", choices=[])
+    apartment = SelectField("Квартира")
     code = StringField("Код", validators=[DataRequired(), Length(min=4, max=10)])
     submit = SubmitField("Сохранить")
+
+    def add_district_choices(self):
+        """ Добавление выбора в поле Тариф """
+        district = []
+        try:
+            district = db.session.query(District).all()
+        except Exception as err:
+            print(err)
+
+        if district is not None and len(district) != 0:
+            for el in district:
+                self.district.choices.append((el.id, el.name))
+        else:
+            self.district.choices = [('0', 'Empty')]
