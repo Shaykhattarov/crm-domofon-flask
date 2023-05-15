@@ -57,7 +57,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
     db.session.add(equipment)
     db.session.commit()
     
-    if apartment_from < apartment_to:
+    if apartment_from > apartment_to:
         return False
     if apartment_to <= 0 or apartment_from < 0:
         return False 
