@@ -49,7 +49,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
             address.equipment_id = equipment.id
 
         db.session.commit() 
-        return preaddress.id
+        return preaddress
 
     equipment: Equipment = Equipment(
         equipment_id=equipment_list_id,
@@ -88,9 +88,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
 
 def change_address_individual_code(street: str, house: str, front_door: str, apartment: str, district: int, code: str):
     """ Изменение индивидуального кода подъезда """
-   
     address = db.session.query(Address).filter_by(district_id=district).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter_by(apartment=apartment).first()
-
     if address is not None:
         address.code = code
         db.session.commit()

@@ -40,17 +40,17 @@
                     {{ form.code(type="text", class="form-control", id="code") }}
                 </div>
             </div>
-            <div class="push50 hidden-xss"></div>
-            <div class="push30 visible-xss"></div>
+            <div class="push25 hidden-xss"></div>
+            <div class="push15 visible-xss"></div>
             {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
                             <div class="label" style="color:gray">{{ message }}</div>
                         {% endfor %}
+                        <div class="push25 hidden-xss"></div>
+                        <div class="push15 visible-xss"></div>
                     {% endif %}
             {% endwith %}
-            <div class="push50 hidden-xss"></div>
-            <div class="push30 visible-xss"></div>
             {{ form.submit(class="button") }}
             <div class="push100 hidden-xss"></div>
             <div class="push50 visible-xss"></div> 

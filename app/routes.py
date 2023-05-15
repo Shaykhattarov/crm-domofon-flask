@@ -479,7 +479,7 @@ def organization_code():
     form: OrganizationChangeIndividualCode = OrganizationChangeIndividualCode()
     form.add_district_choices()
     if form.validate_on_submit():
-        address_id = change_address_individual_code(street=form.street.data, district=form.district.data, house=form.house.data, front_door=form.front_door, apartment=form.apartment.data, code=form.code.data)
+        address_id = change_address_individual_code(street=form.street.data, district=form.district.data, house=form.house.data, front_door=form.front_door.data, apartment=form.apartment.data, code=form.code.data)
         if address_id is None:
             flash('Ошибка!')
         else:
