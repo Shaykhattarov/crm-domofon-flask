@@ -30,7 +30,7 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
     return result
 
 
-def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, equipment_list_id: str, serial_code: str):
+def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
     """ Сохранение адреса и добавленного оборудования в Базу данных """
 
     preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter(Address.apartment <= apartment_to, Address.apartment >= apartment_from).first()
@@ -69,6 +69,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
                 house=house,
                 apartment=apart,
                 front_door=front_door,
+                district_id=district,
                 tariff_id=tariff_id,
                 equipment_id=equipment.id
             )
