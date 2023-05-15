@@ -43,6 +43,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
         db.session.add(equipment)
         db.session.commit()
         
+        preaddress.district_id = district_id
         preaddress.tariff_id = tariff_id
         preaddress.equipment_id = equipment.id
 
@@ -69,7 +70,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
                 house=house,
                 apartment=apart,
                 front_door=front_door,
-                district_id=district,
+                district_id=district_id,
                 tariff_id=tariff_id,
                 equipment_id=equipment.id
             )
