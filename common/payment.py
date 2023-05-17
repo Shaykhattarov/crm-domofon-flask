@@ -1,33 +1,23 @@
 from app import db, app
 import requests, json, math
-from .address import parse_address
 from datetime import datetime, timedelta
 from app.models import User, Address, Payment, Tariff, Subscription
 
 
 
-def operator_pay_lk(address: str, apartment: str, amount: int, tariff_id: str=1):
+def operator_pay_lk(district_id: int, street: str, house: str, front_door: str, apartment: str, amount: int, tariff_id: str=1):
     """ Оплата через оператора """
-    street, house, front_door = parse_address(address)
 
     # Проверяем есть ли такой адрес в базе данных
-    address = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).first()
+    address = db.session.query(Address).filter_by(district_id=district_id).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter_by(apartment=apartment).first()
     if address is None:
         return {
             'status': 'error',
             'message': 'Такого адреса не существует'
         }
-    
-    # Получаем его полный адрес
-    user_address = db.session.query(UserAddress).filter_by(address_id=address.id).filter_by(apartment=apartment).first()
-    if user_address is None:
-        return {
-            'status': 'error',
-            'message': 'Такого адреса пользователя не существует'
-        }
 
     # Получаем данные о пользователях
-    users = db.session.query(User).filter_by(address_id=user_address.id).all()
+    users = db.session.query(User).filter_by(address_id=address.id).all()
     if users is None or len(users) == 0:
         return {
             'status': 'error',
@@ -180,6 +170,7 @@ def __save_order(user_id, price):
         db.session.commit()
     else:
         sub = db.session.query(Subscription).get(user.subscription_id)
+        
         if sub.active == 1:
             if year_period:
                 sub.option = option

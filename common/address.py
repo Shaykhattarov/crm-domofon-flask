@@ -97,16 +97,6 @@ def change_address_individual_code(street: str, house: str, front_door: str, apa
         return None
     
 
-def parse_address(address: str):
-    """ Парсим адрес для изменения кода подъезда """
-    address = address.split(', ')
-
-    street = address[0].replace('ул. ', '')
-    house = address[1].replace('д. ', '')
-    front_door = address[2].replace('п. ', '')
-
-    return [street, house, front_door]
-
 
 def generate_apartment_help_list(address: str):
     """ Получение списка подсказок квартир для введенного адреса(поиск идет по списку пользователей)  """

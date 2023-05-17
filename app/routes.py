@@ -245,15 +245,19 @@ def operator_create_order():
     data = {}
     form: CreateApplicationForm = CreateApplicationForm()
     form.add_master_choices()
+    form.add_district_choices()
     data['id']: int = count_application() + 1
     data['address'] = generate_address_help_list()
     if form.validate_on_submit():
-        result = create_application(address=form.address.data, apartment=form.apartment.data, master_id=form.master.data, problem=form.problem.data, date=form.date.data, image=form.image.data)
+        result = create_application(district_id=form.district.data, street=form.street.data, front_door=form.front_door.data, house=form.house.data, apartment=form.apartment.data, 
+                                    master_id=form.master.data, date=form.date.data, problem=form.problem.data, image=form.image.data)
         if result['error'] == '':
-            flash("Заявка успешно создана!")
+            flash('Заявка успешно создана!')
+            return redirect(url_for('operator_create_order'))
         else:
-            flash("Произошла ошибка!")
-
+            flash('Произошла ошибка при создании заявки или данный адрес не существует!')
+            return redirect(url_for('operator_create_order'))
+        
     return render_template('/operator/create-order.html', form=form, data=data)
 
 
@@ -265,6 +269,7 @@ def operator_pay():
     
     form: OperatorPay = OperatorPay()
     form.add_tariff_choices()
+    form.add_district_choices()
     address_list: list = generate_address_help_list()
     if form.validate_on_submit():
         amount = float(form.amount.data)
@@ -274,7 +279,8 @@ def operator_pay():
         else:
             amount: int = math.ceil(amount)
     
-        pay: dict = operator_pay_lk(address=form.address.data, apartment=form.apartment.data, amount=amount, tariff_id=form.tariff.data)
+        pay: dict = operator_pay_lk(district_id=form.district.data, street=form.street.data, front_door=form.front_door.data, house=form.house.data, apartment=form.apartment.data,
+                                     amount=amount, tariff_id=form.tariff.data)
 
         if pay['status'] == 'good':
             flash("Оплата проведена успешно!")
@@ -334,9 +340,11 @@ def operator_report_pays():
     
     data = {}
     form = ViewReportApplicationForm()
+    form.add_district_choices()
     data['address'] = generate_address_help_list()
     if form.validate_on_submit():
-        result = view_report_about_payments(address=form.address.data, appartment=form.apartment.data, from_date=form.from_date.data, to_date=form.to_date.data)
+        result = view_report_about_payments(district_id=form.district.data, street=form.street.data, house=form.house.data, front_door=form.front_door.data, 
+                                            apartment=form.apartment.data, from_date=form.from_date.data, to_date=form.to_date.data)
         if result['error'] is None or result['error'] == '':
             flash(result['message'][0], 'debt')
             flash(result['message'][1], 'option')
@@ -357,11 +365,19 @@ def operator_report_request():
     
     data = {}
     form = ViewReportApplicationForm()
+    form.add_district_choices()
     data['address'] = generate_address_help_list()
     if form.validate_on_submit():
-        result = view_report_about_applications(address=form.address.data, apartment=form.apartment.data, from_date=form.from_date.data, to_date=form.to_date.data)
-        flash(result[0],'applications_count')
-        flash(result[1], 'return_applications')
+        result = view_report_about_applications(district_id=form.district.data, street=form.street.data, house=form.house.data, front_door=form.front_door.data, 
+                                                apartment=form.apartment.data, from_date=form.from_date.data, to_date=form.to_date.data)
+        if result['error'] == '':
+            flash(result['message'][0],'applications_count')
+            flash(result['message'][1], 'return_applications')
+            return redirect(url_for('operator_report_request'))
+        else:
+            flash(result['message'],'applications_count')
+            flash(result['message'], 'return_applications')
+            return redirect(url_for('operator_report_request'))
     
     return render_template('/operator/report-request.html', form=form, data=data)
 

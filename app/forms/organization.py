@@ -3,7 +3,7 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from app import db
-from app.models import EquipmentList, Tariff, District, Address
+from app.models import EquipmentList, Tariff, District
 
 
 
