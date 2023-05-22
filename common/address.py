@@ -151,8 +151,18 @@ def get_individual_code(user_id: int) -> str:
         else:
             return address.code
         
-def view_addresses() -> list[str]:
+def view_addresses() -> list[str] | None:
     """ Функция генерирует список всех адресов для отображения """
     addresses = db.session.query(Address).all()
     if addresses is None or addresses == []:
-        pass
+        return None
+    
+    result: list = []
+    for address in addresses:
+        if address.front_door is not None:
+            string: str = f'ул. {address.street}, д. {address.house}, п. {address.front_door}, кв. {address.apartment}'
+        else:
+            string: str = f'ул. {address.street}, д. {address.house}, кв. {address.apartment}'
+
+        result.append([address.id, string])
+    return result

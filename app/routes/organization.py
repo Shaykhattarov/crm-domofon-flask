@@ -4,7 +4,7 @@ from flask_login import current_user
 from flask import request, redirect, url_for, flash, render_template
 from app.forms import OrganizationChangeIndividualCode, OrganizationCreateAddress
 from common.document import upload_document, view_document
-from common.address import save_address, prepare_user_address_list, change_address_individual_code
+from common.address import save_address, view_addresses, change_address_individual_code
 
 
 @app.route('/organization-creating-address', methods=['GET', 'POST'])
@@ -37,7 +37,7 @@ def organization_address():
     if not current_user.is_authenticated and current_user.role_id != 3:
         return redirect(url_for('login'))
 
-    address_list: list = prepare_user_address_list(address_list=address_list)
+    address_list: list = view_addresses()
 
     return render_template('/organization/address.html', address_list=address_list)
 
