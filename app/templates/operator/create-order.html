@@ -39,13 +39,58 @@
                 <div class="form-group">
                     {{ form.street.label(class="label", for="street") }}
                     {{ form.street(class="form-control", id="street", list="street_list", placeholder="Введите улицу") }}
+                    <datalist id="street_list">
+                        {% if hints['status'] == 'Ok' %}
+                            {% for hint in hints['data'] %}
+                                <option value="{{ hint['street'] }}">{{ hint['street'] }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </datalist>
                     {{ form.house.label(class="label", for="house") }}
                     {{ form.house(class="form-control", list="house_list", placeholder="Введите дом") }}
+                    <datalist id="house_list">
+                        {% if hints['status'] == 'Ok' %}
+                            {% set values = [] %}
+                            {% for hint in hints['data'] %}
+                                {% for house in hint['house'] %}
+                                    {% if house not in values %}
+                                        {{ values.append(house) }}
+                                        <option>{{ house }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    </datalist>
                     {{ form.front_door.label(class="label", for="front_door") }}
                     {{ form.front_door(class="form-control", list="front_door_list", placeholder="Введите подъезд") }}
+                    <datalist id="front_door">
+                        {% if hints['status'] == 'Ok' %}
+                            {% set values = [] %}
+                            {% for hint in hints['data'] %}
+                                {% for front_door in hint['front_door'] %}
+                                    {% if front_door not in values %}
+                                        {{ values.append(front_door) }}
+                                        <option>{{ front_door }}</option>
+                                    {% endif %}                                
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    </datalist>
                     {{ form.apartment.label(class="label", for="apartment") }}
                     {{ form.apartment(class="form-control", list="apartment_list", placeholder="Введите квартиру") }}
-                    <datalist id="street_list"></datalist>
+                    <datalist id="apartment_list">
+                        {% if hints['status'] == 'Ok' %}
+                            {% set apartments = [] %}
+                            {% for hint in hints['data'] %}
+                                {% for apartment in hint['apartment'] %}
+                                    {% if apartment not in apartments %}
+                                        {{ apartments.append(apartment) }}
+                                        <option>{{ apartment }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}    
+                    </datalist>
                 </div>
                 <div class="form-group">
                     {{ form.master.label(class="label", for="master") }}
@@ -87,6 +132,9 @@
     </div>
 </section>
 {% endblock %}
+
+
+
 
 {% block Scripts %}
 <script>
@@ -140,5 +188,12 @@
             }
         });
     });
+</script>
+
+<script>
+    const streetElement = document.getElementById("street");
+    const streetElementList = document.getElementById("street-list");
+
+    const hints_url = document.location.protocol + '//' + document.location.host + '/hint/address'; 
 </script>
 {% endblock %}

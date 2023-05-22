@@ -3,6 +3,48 @@ from app.models import User, Address, Equipment
 
 
 
+def generate_address_hints() -> list[dict]:
+    """ Функция генерации списка подсказок для адресов """
+    try:
+        addresses: Address = db.session.query(Address).all()
+    except Exception as err:
+        print(err)
+        return {
+            'status': 'error',
+            'message': f'Произошла ошибка при обращении к базе: {err}'
+        }
+    else:    
+        if addresses is None and len(addresses) == 0:
+            return {
+                'status': 'error',
+                'message': 'База адресов пуста'
+            }
+        streets: list = []
+        result: list = []
+        for address in addresses:
+            if address.street not in streets:
+                streets.append(address.street)
+        
+        for street in streets:
+            street_info = {}
+            street_info.update(street=street, house=[], district_id=[], front_door=[], apartment=[])
+            for address in addresses:
+                if address.house not in street_info['house']:
+                    street_info['house'].append(address.house)
+                if address.district_id not in street_info['district_id']:
+                    street_info['district_id'].append(address.district_id)
+                if address.front_door not in street_info['front_door']:
+                    street_info['front_door'].append(address.front_door)
+                if address.apartment not in street_info['apartment']:
+                    street_info['apartment'].append(address.apartment)
+            result.append(street_info)                
+            
+    return {
+        'status': 'Ok',
+        'data': result
+    }
+
+
 def get_user_address_list() -> list[object] | None:
     """ Получение списка адресов в виде списка объектов из базы данных """
     address_list: list = []
@@ -95,48 +137,6 @@ def change_address_individual_code(street: str, house: str, front_door: str, apa
         return address.id
     else:
         return None
-    
-
-
-def generate_apartment_help_list(address: str):
-    """ Получение списка подсказок квартир для введенного адреса(поиск идет по списку пользователей)  """
-    address = parse_address(address=address)
-    
-    street = address[0]
-    house = address[1]
-    front_door = address[2]
-
-    address = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).first()
-
-    if address is None:
-        return None
-    
-    user_addresses = db.session.query(Address).filter_by(address_id=address.id).all()
-
-    if user_addresses is None or len(user_addresses) == 0:
-        return None
-
-    apartment_list: list = []
-    for user_address in user_addresses:
-        apartment_list.append((str(user_address.id), user_address.apartment))
-    
-    if len(apartment_list) != 0: 
-        return apartment_list
-    else:
-        return None
-
-
-#
-#def generate_address_help_list():
-#    """ Генерирует списко подсказок для ввода адреса """
-#    addresses: Address = db.session.query(Address).order_by(Address.street).all()
-#
-#    address_list: list = []
-#    for address in addresses:
-#        fulladdress: str = f"ул. {address.street}, д. {address.house}, п. {address.front_door}"
-#        address_list.append((str(address.id), fulladdress))
-#
-#    return address_list
 
 
 def get_individual_code(user_id: int) -> str:

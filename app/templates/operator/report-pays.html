@@ -56,16 +56,16 @@
             </div>
             {% with error = get_flashed_messages(category_filter=['error']) %}
                 {% if error %}
-                    <div class="push80 hidden-xss"></div>
-                    <div class="push40 visible-xss"></div>
+                    <div class="push35 hidden-xss"></div>
+                    <div class="push35 visible-xss"></div>
                     <div class="label" style="color:gray">{{ error[0] }}</div>
                 {% endif %}
             {% endwith %}
-            <div class="push80 hidden-xss"></div>
-            <div class="push40 visible-xss"></div>
+            <div class="push35 hidden-xss"></div>
+            <div class="push35 visible-xss"></div>
             {{ form.submit(class="button") }}
-            <div class="push90 hidden-xss"></div>
-            <div class="push40 visible-xss"></div> 
+            <div class="push35 hidden-xss"></div>
+            <div class="push35 visible-xss"></div> 
             <div class="bottom-inputs bottom-inputs-three">
                 <div class="form-group">
                     <label class="label"  for="summ">Сумма задолженности</label>
