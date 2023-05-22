@@ -157,6 +157,7 @@ def __save_order(user_id, price):
             active=1
         )
         db.session.add(sub)
+        db.session.commit()
         
         user.subscription_id = sub.id
 
