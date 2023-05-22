@@ -108,6 +108,7 @@ def operator_report_pays():
         return redirect(url_for('login'))
     
     data = {}
+    hints = generate_address_hints()
     form = ViewReportApplicationForm()
     form.add_district_choices()
     if form.validate_on_submit():
@@ -122,7 +123,7 @@ def operator_report_pays():
             flash(result['message'], 'error')
             return redirect(url_for('operator_report_pays'))
 
-    return render_template('/operator/report-pays.html', form=form, data=data)
+    return render_template('/operator/report-pays.html', form=form, data=data, hints=hints)
 
 
 @app.route('/operator-report-request', methods=['GET', 'POST'])
