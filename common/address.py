@@ -102,7 +102,31 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
 
     db.session.add(equipment)
     db.session.commit()
-    
+
+    if not is_int(apartment_from):
+        address: Address = Address(
+                street=street,
+                house=house,
+                apartment=apartment_from,
+                front_door=front_door,
+                district_id=district_id,
+                tariff_id=tariff_id,
+                equipment_id=equipment.id
+            )
+        db.session.add(address)
+
+    if apartment_to is None or len(apartment_to) == 0:
+        address: Address = Address(
+                street=street,
+                house=house,
+                apartment=apartment_from,
+                front_door=front_door,
+                district_id=district_id,
+                tariff_id=tariff_id,
+                equipment_id=equipment.id
+            )
+        db.session.add(address)
+
     if apartment_from > apartment_to:
         return False
     if apartment_to <= 0 or apartment_from < 0:
@@ -128,6 +152,15 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
         return address.id
     
     return False
+
+def is_int(string: str):
+    try:
+        int(string)
+    except ValueError:
+        return False
+    else:
+        return True
+
 
 def check_kladr_address(street: str, house: str):
     """ Проверка адреса на существование """
