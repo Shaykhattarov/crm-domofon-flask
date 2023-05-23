@@ -137,9 +137,16 @@ def check_kladr_address(street: str, house: str):
     streetId: str = ''
     request_street = requests.get(street_url, headers={'Access-Control-Allow-Origin': '*'})
     street_data = request_street.json()
-    if street_data['result'] is None:
+    if street_data['result'] is None or street_data['result'][0]['name'] != street:
         return None 
+    
     house_url: str = f"{kladr_url}?query={house}&streetId={streetId}&oneString=1&limit=1&withParent=1&contentType=building"
+    request_house = requests.get(house_url, headers={'Access-Control-Allow-Origin': '*'})
+    house_data = request_house.json()
+    if house_data['result'] is None or house_data['result'][0]['name'] != house:
+        return None
+    
+    return True
 
 def change_address_individual_code(street: str, house: str, front_door: str, apartment: str, district: int, code: str):
     """ Изменение индивидуального кода подъезда """
