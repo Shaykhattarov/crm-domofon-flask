@@ -72,7 +72,7 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
     return result
 
 
-def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
+def save_address(street: str, house: str, front_door: str, apartment_from: str, apartment_to: str, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
     """ Сохранение адреса и добавленного оборудования в Базу данных """
     if check_kladr_address(street=street, house=house) is None:
         return False
@@ -114,8 +114,10 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
                 equipment_id=equipment.id
             )
         db.session.add(address)
+        db.session.commit()
+        return True
 
-    if apartment_to is None or len(apartment_to) == 0:
+    elif apartment_to is None or len(apartment_to) == 0:
         address: Address = Address(
                 street=street,
                 house=house,
@@ -126,14 +128,16 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
                 equipment_id=equipment.id
             )
         db.session.add(address)
+        db.session.commit()
+        return True
 
-    if apartment_from > apartment_to:
+    elif apartment_from > apartment_to:
         return False
-    if apartment_to <= 0 or apartment_from < 0:
+    elif apartment_to <= 0 or apartment_from < 0:
         return False 
 
     try:
-        for apart in range(apartment_from, apartment_to + 1):       
+        for apart in range(int(apartment_from), int(apartment_to) + 1):       
             address: Address = Address(
                 street=street,
                 house=house,
