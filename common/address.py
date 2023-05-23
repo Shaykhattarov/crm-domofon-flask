@@ -134,17 +134,10 @@ def check_kladr_address(street: str, house: str):
     cityId: str = '7700000000000'
     kladr_url: str = "https://kladr-api.ru/api.php"
     street_url: str = f"{kladr_url}?query={street}&cityId={cityId}&oneString=1&limit=1&withParent=1&contentType=street"
-    streetId: str = ''
     request_street = requests.get(street_url, headers={'Access-Control-Allow-Origin': '*'})
     street_data = request_street.json()
     if street_data['result'] is None or street_data['result'][0]['name'] != street:
         return None 
-    
-    house_url: str = f"{kladr_url}?query={house}&streetId={streetId}&oneString=1&limit=1&withParent=1&contentType=building"
-    request_house = requests.get(house_url, headers={'Access-Control-Allow-Origin': '*'})
-    house_data = request_house.json()
-    if house_data['result'] is None or house_data['result'][0]['name'] != house:
-        return None
     
     return True
 
