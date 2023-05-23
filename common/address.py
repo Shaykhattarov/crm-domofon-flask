@@ -115,7 +115,7 @@ def save_address(street: str, house: str, front_door: str, apartment_from: str, 
             )
         db.session.add(address)
         db.session.commit()
-        return True
+        return address.id
 
     elif apartment_to is None or len(apartment_to) == 0:
         address: Address = Address(
@@ -129,11 +129,12 @@ def save_address(street: str, house: str, front_door: str, apartment_from: str, 
             )
         db.session.add(address)
         db.session.commit()
-        return True
+        return address.id
 
-    elif apartment_from > apartment_to:
+    elif int(apartment_from) > int(apartment_to):
         return False
-    elif apartment_to <= 0 or apartment_from < 0:
+    
+    elif int(apartment_to) <= 0 or int(apartment_from) < 0:
         return False 
 
     try:
