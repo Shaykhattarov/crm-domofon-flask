@@ -1,6 +1,6 @@
 from app import db
 from app.models import User, Address, Equipment
-
+import requests
 
 
 def generate_address_hints() -> list[dict]:
@@ -74,7 +74,9 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
 
 def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
     """ Сохранение адреса и добавленного оборудования в Базу данных """
-
+    if check_kladr_address(street=street, house=house) is None:
+        return False
+    
     preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter(Address.apartment <= apartment_to, Address.apartment >= apartment_from).all()
     if preaddress is not None and len(preaddress) != 0:
         
@@ -127,6 +129,17 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
     
     return False
 
+def check_kladr_address(street: str, house: str):
+    """ Проверка адреса на существование """
+    cityId: str = '7700000000000'
+    kladr_url: str = "https://kladr-api.ru/api.php"
+    street_url: str = f"{kladr_url}?query={street}&cityId={cityId}&oneString=1&limit=1&withParent=1&contentType=street"
+    streetId: str = ''
+    request_street = requests.get(street_url, headers={'Access-Control-Allow-Origin': '*'})
+    street_data = request_street.json()
+    if street_data['result'] is None:
+        return None 
+    house_url: str = f"{kladr_url}?query={house}&streetId={streetId}&oneString=1&limit=1&withParent=1&contentType=building"
 
 def change_address_individual_code(street: str, house: str, front_door: str, apartment: str, district: int, code: str):
     """ Изменение индивидуального кода подъезда """

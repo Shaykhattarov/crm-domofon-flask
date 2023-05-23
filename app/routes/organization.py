@@ -23,7 +23,7 @@ def organization_creating_address():
         address_id = save_address(street=form.street.data, house=form.house.data, front_door=form.front_door.data, apartment_from=int(form.from_apartment.data), apartment_to=int(form.to_apartment.data), 
                                   tariff_id=form.tariff.data, equipment_list_id=form.equipment.data, district_id=form.district.data, serial_code=form.serial_code.data)
         if not address_id:
-            flash('Произошла ошибка!')
+            flash('Произошла ошибка! Возможно, неверно введён адрес!')
         else:
             flash('Адреса успешно добавлены!')
             return redirect(url_for('organization_creating_address'))

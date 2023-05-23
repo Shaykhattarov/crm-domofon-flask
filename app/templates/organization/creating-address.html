@@ -80,6 +80,8 @@
             {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
+                            <div class="push35 hidden-xss"></div>
+                            <div class="push35 visible-xss"></div>
                             <div class="label" style="color:gray">{{ message }}</div>
                         {% endfor %}
                     {% endif %}
