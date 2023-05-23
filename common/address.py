@@ -151,6 +151,7 @@ def get_individual_code(user_id: int) -> str:
         else:
             return address.code
         
+
 def view_addresses() -> list[str] | None:
     """ Функция генерирует список всех адресов для отображения """
     addresses = db.session.query(Address).all()

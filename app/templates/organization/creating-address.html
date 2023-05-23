@@ -12,8 +12,8 @@
             <div class="top-inputs">
                 <div class="form-group">
                     {{ form.street.label(class="label", for="address") }}
-                    {{ form.street(class="form-control select-styler", id="address", list="address_list") }}
-                    <datalist id="address_list"></datalist>
+                    {{ form.street(class="form-control select-styler", id="street", list="street_list") }}
+                    <datalist id="street_list"></datalist>
                 </div>
                 <div class="form-group">
                     {{ form.district.label(class="label", for="district") }}
@@ -99,12 +99,14 @@
     const kladr_url = 'https://kladr-api.ru/api.php';
     const cityId = '7700000000000'; // Москва
 
-    const addressElement = document.getElementById("address");
-    const addressElementList = document.getElementById("address_list");
-    
-    addressElement.addEventListener("input", function(event) {
+    const streetElement = document.getElementById("street");
+    const streetElementList = document.getElementById("street_list");
+    const houseElement = document.getElementById("house");
+    const houseElementList = document.getElementById("house_list");
+
+    streetElement.addEventListener("input", function(event) {
         let oneString = '1';
-        let limit = '10';
+        let limit = '50';
         let contentType = 'street';
         let query = this.value;
         let withParent = '1';
@@ -120,11 +122,11 @@
                 dataType: 'jsonp',
                 headers: {'Access-Control-Allow-Origin': '*'},
                 success: function (data) {
-                    console.log(data.result);
-                    $("#address_list").empty();
+                    //console.log(data.result);
+                    $("#street_list").empty();
                     for (let i = 0; i < data.result.length; i++) {
-                        let newOption = new Option(data.result[i]['id'], data.result[i]['name']);
-                        addressElementList.append(newOption);
+                        let newOption = new Option(data.result[i]['name']);
+                        streetElementList.append(newOption);
                     }
                 },
                 error: function (data) {
@@ -134,6 +136,61 @@
         }
     });
 
+    houseElement.addEventListener("input", function(event) {
+        let oneString = '1';
+        let limit = '50';
+        let contentType = 'building';
+        let query = this.value;
+        let withParent = '1';
+        var streetId = '';
+        
+        if (streetElement.value != '') {
+            let url = kladr_url + '?query=' + streetElement.value + '&cityId=' + cityId + '&oneString=' + oneString + '&limit=' + limit + '&withParent=' + withParent + '&contentType=street';
+
+            $.ajax({
+                async: false,
+                method: 'GET',
+                url: url,
+                crossDomain: true,
+                dataType: 'jsonp',
+                headers: {'Access-Control-Allow-Origin': '*'},
+                success: function (data) {
+                    streetId = data.result[0]['id'];
+                },
+                error: function (data) {
+                    console.log(data);
+                },
+            });
+        }
+        console.log(streetId);
+        if (query != '') {
+            let url = kladr_url + '?query=' + query + '&streetId=' + streetId + '&oneString=' + oneString + '&limit=' + limit + '&withParent=' + withParent + '&contentType=' + contentType;
+
+            $.ajax({
+                async: false,
+                method: 'GET',
+                url: url,
+                crossDomain: true,
+                dataType: 'jsonp',
+                headers: {'Access-Control-Allow-Origin': '*'},
+                success: function (data) {
+                    
+                    console.log(data.result);
+                    $("#house_list").empty();
+                    for (let i = 0; i < data.result.length; i++) {
+                         let newOption = new Option(data.result[i]['name']);
+                         houseElementList.append(newOption);
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                },
+            });
+        }
+    });
+    
+</script>
+<!--<script>
     const houseElement = document.getElementById("house");
     const houseElementList = document.getElementById("house_list");
 
@@ -169,5 +226,5 @@
             });
         }
     });
-</script>
+</script>!-->
 {% endblock %}
