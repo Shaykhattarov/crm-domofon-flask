@@ -9,7 +9,7 @@ from app import db
 
 class OperatorPay(FlaskForm):
     street = StringField('Улица', validators=[DataRequired()])
-    front_door = StringField('Подъезд', validators=[DataRequired()])
+    front_door = StringField('Подъезд', validators=[])
     house = StringField('Дом', validators=[DataRequired()])
     district = SelectField('Район', choices=[], validators=[DataRequired()])
     apartment = StringField("Квартира", validators=[DataRequired()])
@@ -50,7 +50,7 @@ class OperatorPay(FlaskForm):
 class CreateApplicationForm(FlaskForm):
     date = StringField('', validators=[DataRequired()])
     street = StringField('Улица', validators=[DataRequired()])
-    front_door = StringField('Подъезд', validators=[DataRequired()])
+    front_door = StringField('Подъезд', validators=[])
     house = StringField('Дом', validators=[DataRequired()])
     district = SelectField('Район', choices=[], validators=[DataRequired()])
     apartment = StringField("Квартира", validators=[DataRequired()])
@@ -217,7 +217,7 @@ class ViewReportMasterForm(FlaskForm):
 
 class ViewReportApplicationForm(FlaskForm):
     street = StringField('Улица', validators=[DataRequired()])
-    front_door = StringField('Подъезд', validators=[DataRequired()])
+    front_door = StringField('Подъезд', validators=[])
     house = StringField('Дом', validators=[DataRequired()])
     district = SelectField('Район', choices=[], validators=[DataRequired()])
     apartment = StringField("Квартира", validators=[DataRequired()])

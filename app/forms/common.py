@@ -18,7 +18,7 @@ class UserRegistration(FlaskForm):
     street = StringField("Введите улицу", validators=[DataRequired(), Length(max=300)])
     district = SelectField("Выберите район", choices=[], validators=[DataRequired()])
     house = StringField("Введите дом", validators=[DataRequired(), Length(max=50)])
-    front_door = StringField("Введите подъезд", validators=[DataRequired(), Length(max=50)])
+    front_door = StringField("Введите подъезд", validators=[])
     apartment = StringField("Введите квартиру", validators=[DataRequired(), Length(max=10)])
     recaptcha = RecaptchaField()
     submit = SubmitField('продолжить')
