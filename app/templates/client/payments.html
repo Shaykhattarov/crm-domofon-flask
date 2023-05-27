@@ -24,7 +24,7 @@
                         {% for payment in payments %}
                             <tr>
                                 <td>{{ payment["payment_date"] }}&nbsp-&nbsp{{ payment["end_date"] }}</td><td>{{ payment["tariff"] }}</td><td>{{ payment["option"] }}</td>
-                                {% if payment["status"] %}
+                                {% if payment["status"] == 1 %}
                                     <td style="color: rgb(3, 176, 3);">Действует</td>
                                 {% else %}
                                     <td style="color: red;">Истёк</td>

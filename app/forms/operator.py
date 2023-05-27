@@ -1,15 +1,17 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FileField, SelectField
 from wtforms.validators import DataRequired, Length
-from app.models import Tariff, User, Application, ApplicationStatus
-from common import generate_address_help_list
+from app.models import Tariff, User, Application, ApplicationStatus, District
 from app import db
 
 
 
 
 class OperatorPay(FlaskForm):
-    address = StringField("Адрес", validators=[DataRequired()])
+    street = StringField('Улица', validators=[DataRequired()])
+    front_door = StringField('Подъезд', validators=[])
+    house = StringField('Дом', validators=[DataRequired()])
+    district = SelectField('Район', choices=[], validators=[DataRequired()])
     apartment = StringField("Квартира", validators=[DataRequired()])
     tariff = SelectField("Тариф", choices=[], validators=[DataRequired()])
     amount = StringField("Сумма", validators=[DataRequired(), Length(min=2, max=8)])
@@ -29,12 +31,29 @@ class OperatorPay(FlaskForm):
         else:
             self.tariff.choices = [('0', 'Empty')]
 
+    def add_district_choices(self):
+        """ Добавление выбора в поле Тариф """
+        district = []
+        try:
+            district = db.session.query(District).all()
+        except Exception as err:
+            print(err)
+
+        if district is not None and len(district) != 0:
+            for el in district:
+                self.district.choices.append((el.id, el.name))
+        else:
+            self.district.choices = [('0', 'Empty')]
+
 
 
 class CreateApplicationForm(FlaskForm):
     date = StringField('', validators=[DataRequired()])
-    address = StringField('Адрес', validators=[DataRequired()])
-    apartment = StringField('Квартира', validators=[DataRequired()])
+    street = StringField('Улица', validators=[DataRequired()])
+    front_door = StringField('Подъезд', validators=[])
+    house = StringField('Дом', validators=[DataRequired()])
+    district = SelectField('Район', choices=[], validators=[DataRequired()])
+    apartment = StringField("Квартира", validators=[DataRequired()])
     master = SelectField('Мастер', choices=[], validators=[DataRequired()])
     problem = StringField('Проблема', validators=[DataRequired()])
     image = FileField('Изображение', validators=[DataRequired()])
@@ -53,6 +72,20 @@ class CreateApplicationForm(FlaskForm):
                 self.master.choices.append((master.id, f"{master.name} - {master.phone}"))
         else:
             self.master.choices = [(0, 'Empty')]
+    
+    def add_district_choices(self):
+        """ Добавление выбора в поле Тариф """
+        district = []
+        try:
+            district = db.session.query(District).all()
+        except Exception as err:
+            print(err)
+
+        if district is not None and len(district) != 0:
+            for el in district:
+                self.district.choices.append((el.id, el.name))
+        else:
+            self.district.choices = [('0', 'Empty')]
 
 
 
@@ -183,11 +216,26 @@ class ViewReportMasterForm(FlaskForm):
 
 
 class ViewReportApplicationForm(FlaskForm):
-    address = StringField('Адрес', validators=[DataRequired()])
-    apartment = StringField('Квартира', validators=[DataRequired()])
+    street = StringField('Улица', validators=[DataRequired()])
+    front_door = StringField('Подъезд', validators=[])
+    house = StringField('Дом', validators=[DataRequired()])
+    district = SelectField('Район', choices=[], validators=[DataRequired()])
+    apartment = StringField("Квартира", validators=[DataRequired()])
     from_date = StringField("", validators=[DataRequired()])
     to_date = StringField('', validators=[DataRequired()])
     submit = SubmitField('Вывести отчёт')
 
+    def add_district_choices(self):
+        """ Добавление выбора в поле Тариф """
+        district = []
+        try:
+            district = db.session.query(District).all()
+        except Exception as err:
+            print(err)
 
+        if district is not None and len(district) != 0:
+            for el in district:
+                self.district.choices.append((el.id, el.name))
+        else:
+            self.district.choices = [('0', 'Empty')]
 

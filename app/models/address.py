@@ -8,7 +8,7 @@ class Address(db.Model):
     street = db.Column(db.String(2000), nullable=False)
     house = db.Column(db.String(200), nullable=False)
     front_door = db.Column(db.String(200), nullable=False)
-    apartment = db.Column(db.Integer, nullable=False)
+    apartment = db.Column(db.String(200), nullable=False)
     code = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
     tariff_id = db.Column(db.Integer, db.ForeignKey('tariff.id'))

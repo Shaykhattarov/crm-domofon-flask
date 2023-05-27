@@ -4,8 +4,7 @@ import uuid, os
 from datetime import datetime
 
 from app.models.tariff import Tariff
-from .address import parse_address
-from app.models import Address, User, Payment, Subscription
+from app.models import Address, User, Subscription
 from .payment import get_user_debt
 
 def create_report(app_id: int, status_id: int, master_id: int, addition: str, image: str, date: str):
@@ -39,38 +38,36 @@ def view_report_about_master(master_id: int, from_date: str, to_date: str):
     from_date = datetime.strptime(from_date, "%d.%m.%Y").strftime("%Y-%m-%d")
     to_date = datetime.strptime(to_date, "%d.%m.%Y").strftime("%Y-%m-%d")
     applications_count = db.session.query(Application).filter_by(master_id=master_id).filter_by(status=3).filter(Application.date >= from_date, Application.date <= to_date).count()
-    return_applications = db.session.query(Application).filter(Application.address == Application.address, Application.apartment == Application.apartment, Application.date >= from_date, Application.date <= to_date).count()
+    return_applications = db.session.query(Application).filter(Application.address_id == Application.address_id, Application.date >= from_date, Application.date <= to_date).count()
     return [applications_count, return_applications]
 
 
-def view_report_about_applications(address: str, apartment: str, from_date: str, to_date: str):
+def view_report_about_applications(district_id: int, street: str, house: str, front_door: str, apartment: str, from_date: str, to_date: str):
     from_date = datetime.strptime(from_date, "%d.%m.%Y").strftime("%Y-%m-%d")
     to_date = datetime.strptime(to_date, "%d.%m.%Y").strftime("%Y-%m-%d")
-    applications_count = db.session.query(Application).filter_by(status=3).filter_by(address=address).filter_by(apartment=apartment).filter(Application.date >= from_date, Application.date <= to_date).count()
-    return_applications = db.session.query(Application).filter_by(address=address).filter_by(apartment=apartment).filter(Application.address == Application.address, Application.apartment == Application.apartment, Application.date >= from_date, Application.date <= to_date).count()
-    return [applications_count, return_applications]
-
-
-def view_report_about_payments(address: str, appartment: str, from_date: str, to_date: str):
-
-    address = parse_address(address)
-    from_date = datetime.strptime(from_date, "%d.%m.%Y").strftime("%Y-%m-%d")
-    to_date = datetime.strptime(to_date, "%d.%m.%Y").strftime("%Y-%m-%d")
-    address = db.session.query(Address).filter_by(street=address[0]).filter_by(house=address[1]).filter_by(front_door=address[2]).first()
+    address = db.session.query(Address).filter_by(district_id=district_id).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter_by(apartment=apartment).first()
     if address is None:
         return {
             'error': 'error',
-            'message': 'Адрес не соответствует формату или же неизвестен'
+            'message': 'Данный адрес не зарегистрирован!'
         }
-    
-    user_address = db.session.query(UserAddress).filter_by(address_id=address.id).filter_by(apartment=appartment).first()
-    if user_address is None:
+    applications_count = db.session.query(Application).filter_by(status=3).filter_by(address_id=address.id).filter(Application.date >= from_date, Application.date <= to_date).count()
+    return_applications = db.session.query(Application).filter_by(address_id=address.id).filter(Application.address_id == Application.address_id, Application.date >= from_date, Application.date <= to_date).count()
+    return {'error': '','message': [applications_count, return_applications]}
+
+
+def view_report_about_payments(district_id: int, street: str, house: str, front_door: str, apartment: str, from_date: str, to_date: str):
+
+    from_date = datetime.strptime(from_date, "%d.%m.%Y").strftime("%Y-%m-%d")
+    to_date = datetime.strptime(to_date, "%d.%m.%Y").strftime("%Y-%m-%d")
+    address = db.session.query(Address).filter_by(district_id=district_id).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter_by(apartment=apartment).first()
+    if address is None:
         return {
             'error': 'error',
-            'message': 'Данная квартира неизвестна'
+            'message': 'Данный адрес не зарегистрирован!'
         }
     
-    user = db.session.query(User).filter_by(address_id=user_address.id).first()
+    user = db.session.query(User).filter_by(address_id=address.id).first()
     if user is None:
         return {
             'error': 'error',

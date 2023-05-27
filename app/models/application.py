@@ -6,9 +6,8 @@ class Application(db.Model):
     __tablename__ = 'application'
 
     id = db.Column(db.Integer, primary_key=True)
-    address = db.Column(db.String(500), nullable=False)
+    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=False)
     status = db.Column(db.Integer, db.ForeignKey('application_status.id'))
-    apartment = db.Column(db.String(200), nullable=False)
     master_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     image = db.Column(db.String(300), nullable=False)

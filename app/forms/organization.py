@@ -3,20 +3,20 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from app import db
-from app.models import EquipmentList, Tariff, District, Address
+from app.models import EquipmentList, Tariff, District
 
 
 
 class OrganizationCreateAddress(FlaskForm):
-    street = StringField("Улица", validators=[DataRequired()])
-    district = SelectField("Район", choices=[], validators=[DataRequired()])
-    house = StringField("Дом", validators=[DataRequired()])
+    street = StringField("Улица*", validators=[DataRequired()])
+    district = SelectField("Район*", choices=[], validators=[DataRequired()])
+    house = StringField("Дом*", validators=[DataRequired()])
     front_door = StringField("Подъезд")
-    equipment = SelectField("Оборудование", choices=[])
-    to_apartment = StringField("Квартиры по ", validators=[DataRequired()])
-    from_apartment = StringField("Квартиры с  ", validators=[DataRequired()])
-    serial_code = StringField("Серийный номер блока вызова", validators=[DataRequired()])
-    tariff = SelectField("Тарифы на обслуживание", choices=[])
+    equipment = SelectField("Оборудование*", choices=[])
+    to_apartment = StringField("Квартиры по ", validators=[])
+    from_apartment = StringField("Квартира / Квартиры с  *", validators=[DataRequired()])
+    serial_code = StringField("Серийный номер блока вызова", validators=[])
+    tariff = SelectField("Тарифы на обслуживание*", choices=[])
     submit = SubmitField("Создать")
 
     def add_equipment_choices(self):

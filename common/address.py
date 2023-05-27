@@ -1,6 +1,48 @@
 from app import db
 from app.models import User, Address, Equipment
+import requests
 
+
+def generate_address_hints() -> list[dict]:
+    """ Функция генерации списка подсказок для адресов """
+    try:
+        addresses: Address = db.session.query(Address).all()
+    except Exception as err:
+        print(err)
+        return {
+            'status': 'error',
+            'message': f'Произошла ошибка при обращении к базе: {err}'
+        }
+    else:    
+        if addresses is None and len(addresses) == 0:
+            return {
+                'status': 'error',
+                'message': 'База адресов пуста'
+            }
+        streets: list = []
+        result: list = []
+        for address in addresses:
+            if address.street not in streets:
+                streets.append(address.street)
+        
+        for street in streets:
+            street_info = {}
+            street_info.update(street=street, house=[], district_id=[], front_door=[], apartment=[])
+            for address in addresses:
+                if address.house not in street_info['house']:
+                    street_info['house'].append(address.house)
+                if address.district_id not in street_info['district_id']:
+                    street_info['district_id'].append(address.district_id)
+                if address.front_door not in street_info['front_door']:
+                    street_info['front_door'].append(address.front_door)
+                if address.apartment not in street_info['apartment']:
+                    street_info['apartment'].append(address.apartment)
+            result.append(street_info)                
+            
+    return {
+        'status': 'Ok',
+        'data': result
+    }
 
 
 def get_user_address_list() -> list[object] | None:
@@ -30,9 +72,11 @@ def prepare_user_address_list(address_list: list) -> list[list[int, str]]:
     return result
 
 
-def save_address(street: str, house: str, front_door: str, apartment_from: int, apartment_to: int, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
+def save_address(street: str, house: str, front_door: str, apartment_from: str, apartment_to: str, tariff_id: str, district_id: int, equipment_list_id: str, serial_code: str):
     """ Сохранение адреса и добавленного оборудования в Базу данных """
-
+    if check_kladr_address(street=street, house=house) is None:
+        return False
+    
     preaddress = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).filter(Address.apartment <= apartment_to, Address.apartment >= apartment_from).all()
     if preaddress is not None and len(preaddress) != 0:
         
@@ -58,14 +102,43 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
 
     db.session.add(equipment)
     db.session.commit()
-    
-    if apartment_from > apartment_to:
+
+    if not is_int(apartment_from):
+        address: Address = Address(
+                street=street,
+                house=house,
+                apartment=apartment_from,
+                front_door=front_door,
+                district_id=district_id,
+                tariff_id=tariff_id,
+                equipment_id=equipment.id
+            )
+        db.session.add(address)
+        db.session.commit()
+        return address.id
+
+    elif apartment_to is None or len(apartment_to) == 0:
+        address: Address = Address(
+                street=street,
+                house=house,
+                apartment=apartment_from,
+                front_door=front_door,
+                district_id=district_id,
+                tariff_id=tariff_id,
+                equipment_id=equipment.id
+            )
+        db.session.add(address)
+        db.session.commit()
+        return address.id
+
+    elif int(apartment_from) > int(apartment_to):
         return False
-    if apartment_to <= 0 or apartment_from < 0:
+    
+    elif int(apartment_to) <= 0 or int(apartment_from) < 0:
         return False 
 
     try:
-        for apart in range(apartment_from, apartment_to + 1):       
+        for apart in range(int(apartment_from), int(apartment_to) + 1):       
             address: Address = Address(
                 street=street,
                 house=house,
@@ -85,6 +158,26 @@ def save_address(street: str, house: str, front_door: str, apartment_from: int, 
     
     return False
 
+def is_int(string: str):
+    try:
+        int(string)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
+def check_kladr_address(street: str, house: str):
+    """ Проверка адреса на существование """
+    cityId: str = '7700000000000'
+    kladr_url: str = "https://kladr-api.ru/api.php"
+    street_url: str = f"{kladr_url}?query={street}&cityId={cityId}&oneString=1&limit=1&withParent=1&contentType=street"
+    request_street = requests.get(street_url, headers={'Access-Control-Allow-Origin': '*'})
+    street_data = request_street.json()
+    if street_data['result'] is None or street_data['result'][0]['name'] != street:
+        return None 
+    
+    return True
 
 def change_address_individual_code(street: str, house: str, front_door: str, apartment: str, district: int, code: str):
     """ Изменение индивидуального кода подъезда """
@@ -95,58 +188,6 @@ def change_address_individual_code(street: str, house: str, front_door: str, apa
         return address.id
     else:
         return None
-    
-
-def parse_address(address: str):
-    """ Парсим адрес для изменения кода подъезда """
-    address = address.split(', ')
-
-    street = address[0].replace('ул. ', '')
-    house = address[1].replace('д. ', '')
-    front_door = address[2].replace('п. ', '')
-
-    return [street, house, front_door]
-
-
-def generate_apartment_help_list(address: str):
-    """ Получение списка подсказок квартир для введенного адреса(поиск идет по списку пользователей)  """
-    address = parse_address(address=address)
-    
-    street = address[0]
-    house = address[1]
-    front_door = address[2]
-
-    address = db.session.query(Address).filter_by(street=street).filter_by(house=house).filter_by(front_door=front_door).first()
-
-    if address is None:
-        return None
-    
-    user_addresses = db.session.query(Address).filter_by(address_id=address.id).all()
-
-    if user_addresses is None or len(user_addresses) == 0:
-        return None
-
-    apartment_list: list = []
-    for user_address in user_addresses:
-        apartment_list.append((str(user_address.id), user_address.apartment))
-    
-    if len(apartment_list) != 0: 
-        return apartment_list
-    else:
-        return None
-
-
-#
-#def generate_address_help_list():
-#    """ Генерирует списко подсказок для ввода адреса """
-#    addresses: Address = db.session.query(Address).order_by(Address.street).all()
-#
-#    address_list: list = []
-#    for address in addresses:
-#        fulladdress: str = f"ул. {address.street}, д. {address.house}, п. {address.front_door}"
-#        address_list.append((str(address.id), fulladdress))
-#
-#    return address_list
 
 
 def get_individual_code(user_id: int) -> str:
@@ -160,3 +201,20 @@ def get_individual_code(user_id: int) -> str:
             return 'Отсутствует'
         else:
             return address.code
+        
+
+def view_addresses() -> list[str] | None:
+    """ Функция генерирует список всех адресов для отображения """
+    addresses = db.session.query(Address).all()
+    if addresses is None or addresses == []:
+        return None
+    
+    result: list = []
+    for address in addresses:
+        if address.front_door is not None:
+            string: str = f'ул. {address.street}, д. {address.house}, п. {address.front_door}, кв. {address.apartment}'
+        else:
+            string: str = f'ул. {address.street}, д. {address.house}, кв. {address.apartment}'
+
+        result.append([address.id, string])
+    return result
