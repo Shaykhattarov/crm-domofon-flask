@@ -15,7 +15,7 @@ def operator_pay_lk(district_id: int, street: str, house: str, front_door: str, 
             'status': 'error',
             'message': 'Такого адреса не существует'
         }
-
+    #print(f'[INFO] Адрес: ул.{address.street}, дом {address.house}, подъезд {address.front_door}, кв. {address.apartment}')
     # Получаем данные о пользователях
     users = db.session.query(User).filter_by(address_id=address.id).all()
     if users is None or len(users) == 0:
@@ -23,7 +23,7 @@ def operator_pay_lk(district_id: int, street: str, house: str, front_door: str, 
             'status': 'error',
             'message': 'Пользователи с таким адресом не был найдены'
         }
-    
+    #print(f'[INFO] Пользователи: {users}')
     for user in users:
         if user.subscription_id is None:
             subscription = Subscription (
@@ -31,14 +31,19 @@ def operator_pay_lk(district_id: int, street: str, house: str, front_door: str, 
                 start_date=datetime.today()
             )
 
-            user.subscription_id = subscription.id
+            #user.subscription_id = subscription.id
+
             db.session.add(subscription)
             db.session.commit()
             
-
+            user.subscription_id = subscription.id
+        
+        
+        print(f'[INFO] ID подписки: {user.subscription_id}')
         sub = db.session.query(Subscription).get(user.subscription_id)
         tariff = db.session.query(Tariff).get(sub.tariff_id)
-        
+        print(f'[INFO] Подписка и тариф: {sub} - {tariff}')
+
         if tariff is None:
                 return {
                     'status': 'error',
@@ -56,12 +61,10 @@ def operator_pay_lk(district_id: int, street: str, house: str, front_door: str, 
             subscription_id=sub.id,
             date=datetime.today(),
             period=datetime.today() + timedelta(days=add_period_days),
+            option="Индивидуально",
             amount=amount
         )
-
-        db.session.add(payment)
         
-        sub.option = "Индивидуально"
         if sub.active == 1:
             sub.end_date = sub.end_date + timedelta(days=add_period_days)
  
@@ -151,7 +154,6 @@ def __save_order(user_id, price):
     if user.subscription_id is None:
         sub = Subscription(
             tariff_id=tariff.id,
-            option=option,
             start_date=datetime.today(),
             end_date=end_date,
             active=1
@@ -164,6 +166,7 @@ def __save_order(user_id, price):
         payment = Payment(
             subscription_id=sub.id,
             date=datetime.today(),
+            option=option,
             period=end_date,
             amount=price
         )
@@ -174,10 +177,8 @@ def __save_order(user_id, price):
         
         if sub.active == 1:
             if year_period:
-                sub.option = option
                 sub.end_date = sub.end_date + timedelta(days=365)
             else:
-                sub.option = option
                 sub.end_date = sub.end_date + timedelta(days=30)
             
             sub.start_date = datetime.today()
@@ -186,16 +187,15 @@ def __save_order(user_id, price):
                 subscription_id=sub.id,
                 date=sub.start_date,
                 period=sub.end_date,
+                option=option,
                 amount=price
             )
             db.session.add(payment)
             db.session.commit()
         else:
             if year_period:
-                sub.option = option
                 sub.end_date = sub.end_date + timedelta(days=365)
             else:
-                sub.option = option
                 sub.end_date = sub.end_date + timedelta(days=30)
 
             sub.start_date = datetime.today()
@@ -205,6 +205,7 @@ def __save_order(user_id, price):
                 subscription_id=sub.id,
                 date=sub.start_date,
                 period=sub.end_date,
+                option=option,
                 amount=price
             )
             db.session.add(payment)
@@ -213,77 +214,6 @@ def __save_order(user_id, price):
         'error': ''
     }
 
-
-
-"""
-def __save_order_2(user_id, amount):
-    Сохранение оплаты
-    user = db.session.query(User).get(user_id)
-    tariff = db.session.query(Tariff).filter_by(price=amount).first()
-    year = False
-    if tariff is None:
-        year = True
-        tariff = db.session.query(Tariff).filter_by(price=(amount // 12)).first()
-        if tariff is None:
-            return {
-                'error': 'error',
-                'message': 'Неизвестная сумма'
-            }
-    
-    if year:
-        sub_option = "Ежегодно"
-        end_date = datetime.today() + timedelta(days=365)
-    else:
-        sub_option = "Ежемесячно"
-        end_date = datetime.today() + timedelta(days=30)
-
-    if user.subscription_id is None:
-        sub = Subscription(
-            tariff_id=tariff.id,
-            option=sub_option,
-            start_date=datetime.today(),
-            end_date=end_date,
-            active=1
-        )
-
-        db.session.add(sub)
-        db.session.commit()
-
-        user.subscription_id = sub.id
-
-        payment = Payment (
-            subscription_id=sub.id,
-            date=datetime.today(),
-            period=end_date,
-            amount=amount
-        )
-
-        db.session.add(payment)
-        db.session.commit()     
-    else:
-        sub = db.session.query(Subscription).get(user.subscription_id)
-    
-
-        if sub.active == 1:
-            if year:
-                sub.end_date = sub.end_date + timedelta(days=365)
-            else:
-                sub.end_date = sub.end_date + timedelta(days=30)
-            
-            sub.option = sub_option
-        else:
-            sub.active = 1
-            sub.start_date = datetime.today()
-            sub.end_date = end_date
-            sub.option = sub_option
-
-        db.session.add(payment)
-        db.session.commit()
-
-    return {
-        'error': ''
-    }
-"""
 
 
 def equiring(user_id: int, amount: int):
@@ -357,20 +287,18 @@ def get_payments(user_id: int) -> list[dict]:
         tariff = db.session.query(Tariff).get(sub.tariff_id)
         payments = db.session.query(Payment).filter_by(subscription_id=sub.id).all()
         for payment in payments:
-            status = ''
-            print(payment.period, sub.end_date, type(payment.period), type(sub.end_date))
-            if payment.period == sub.end_date:
-                status = True
-            else:
-                status = False
 
             result.append({
                 'payment_date': datetime.strftime(payment.date, "%d.%m.%Y"),
                 'end_date': datetime.strftime(payment.period, "%d.%m.%Y"),
                 'tariff': tariff.name,
-                'option': sub.option,
-                'status': status
+                'option': payment.option,
+                'status': 0
             })
+        
+        if sub.active == 1:
+            result[len(result) - 1]['status'] = 1
+        
     
     return result
 
