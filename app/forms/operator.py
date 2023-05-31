@@ -56,7 +56,7 @@ class CreateApplicationForm(FlaskForm):
     apartment = StringField("Квартира", validators=[DataRequired()])
     master = SelectField('Мастер', choices=[], validators=[DataRequired()])
     problem = StringField('Проблема', validators=[DataRequired()])
-    image = FileField('Изображение', validators=[DataRequired()])
+    image = FileField('Изображение', validators=[])
     submit = SubmitField("Создать")
 
     def add_master_choices(self):
@@ -94,7 +94,7 @@ class ChangeApplicationForm(FlaskForm):
     date = StringField('', validators=[DataRequired()])
     status = SelectField('Статус', choices=[], validators=[DataRequired()])
     problem = StringField('Проблема (опишите проблемы и трудности, возникшие во время выполнения заявки)', validators=[DataRequired()])
-    image = FileField('Изображение', validators=[DataRequired()])
+    image = FileField('Изображение', validators=[])
     submit = SubmitField("Изменить")
 
     def add_application_choices(self):
@@ -136,7 +136,7 @@ class CreateApplicationReportForm(FlaskForm):
     status = SelectField('Статус', choices=[], validators=[DataRequired()])
     master = SelectField('Мастер', choices=[], validators=[DataRequired()])
     addition = StringField("Дополнительно (опишите проблемы и трудности, возникшие во время выполнения заявки)", validators=[DataRequired()])
-    image = StringField('Изображение', validators=[DataRequired()])
+    image = StringField('Изображение', validators=[])
 
 
 
@@ -146,7 +146,7 @@ class CreateMasterReportForm(FlaskForm):
     status = SelectField('Статус', choices=[], validators=[DataRequired()])
     master = SelectField('Мастер', choices=[], validators=[DataRequired()])
     addition = StringField("Дополнительно (опишите проблемы и трудности, возникшие во время выполнения заявки)", validators=[DataRequired()])
-    image = StringField('Изображение', validators=[DataRequired()])
+    image = StringField('Изображение', validators=[])
     submit = SubmitField("Создать")
 
     def add_application_choices(self):
