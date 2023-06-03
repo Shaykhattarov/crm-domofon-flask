@@ -281,16 +281,20 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,flask
 
 # Personal ignoring
-app/static/images/*.jpg
-app/static/images/documents/*.jpg 
+app/static/images/applications/*.jpg
+app/static/images/documents/*.jpg
+app/static/images/reports/*.jpg 
 
-app/static/images/*.png
+app/static/images/applications/*.png
 app/static/images/documents/*.png
+app/static/images/reports/*.png
 
-app/static/images/*.jpeg
+app/static/images/applications/*.jpeg
 app/static/images/documents/*.jpeg
+app/static/images/reports/*.jpeg
 
-app/static/images/*.gif
+app/static/images/applications/*.gif
 app/static/images/documents/*.gif
+app/static/images/reports/*.gif
 
 config.py
