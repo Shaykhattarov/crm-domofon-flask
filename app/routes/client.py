@@ -81,10 +81,10 @@ def tariffs_call_month():
     else:
         if response['message'] is not None:
             flash(response['message'])
-            return redirect(url_for('tariff-calls'))
+            return redirect(url_for('tariffs_call'))
         else:
             flash('Ошибка оплаты')
-            return redirect(url_for('tariff-calls'))
+            return redirect(url_for('tariff_call'))
 
 
 
