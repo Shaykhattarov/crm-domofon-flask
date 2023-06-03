@@ -76,7 +76,7 @@ def tariffs_call_month():
         return redirect(url_for('login'))
 
     response = equiring(user_id=current_user.id, amount=session['month'])
-    if response is None or response['error'] == '':
+    if response is None or response['status'] == '':
         return redirect(response['payment_url'])
     else:
         if response['message'] is not None:

@@ -220,14 +220,14 @@ def equiring(user_id: int, amount: int):
     """ Эквайринг """
     url = app.config['EQUIRE_URL_CREATE']
     response = {
-        'error': '',
+        'status': '',
         'payment_url': ''
     }
 
     user = db.session.query(User).get(user_id)
     address = db.session.query(Address).get(user.address_id)
     if address is None:
-        return {'error': 'error', 'message': 'Адрес неизвестен'}
+        return {'status': 'error', 'message': 'Адрес неизвестен'}
 
     city = 'Москва'
     address = f"ул. {address.street}, д. {address.house}, п. {address.front_door}, кв. {address.apartment}"
@@ -258,7 +258,7 @@ def equiring(user_id: int, amount: int):
     except Exception as err:
         print(f'[ERROR] Equire error: {err}')
         return {
-            'error': 'error',
+            'status': 'error',
             'message': 'Ошибка запроса'
         }
     else:
