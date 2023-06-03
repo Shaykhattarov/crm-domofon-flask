@@ -263,6 +263,11 @@ def equiring(user_id: int, amount: int):
         }
     else:
         response_2can = json.loads(answer.text)
+        if 'failure_type' in response_2can.keys() and response_2can['failure_type'] == 'error':
+            return {
+                'status': response_2can['failure_type'],
+                'message': response_2can['failure_message']
+            }
         head = answer.headers
         order_id_in_system = response_2can['orders'][0].get('id', None)
         if order_id_in_system is not None:
