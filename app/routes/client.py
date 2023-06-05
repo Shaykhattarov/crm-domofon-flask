@@ -94,13 +94,13 @@ def tariffs_call_year():
         return redirect(url_for('login'))
     
     response = equiring(user_id=current_user.id, amount=session['year'])
-    if response['error'] == '':
+    if response is None or response['status'] == '':
         return redirect(response['payment_url'])
     else:
         if response['message'] is not None:
             flash(response['message'])
-            return redirect(url_for('tariff-calls'))
+            return redirect(url_for('tariffs_call'))
         else:
             flash('Ошибка оплаты')
-            return redirect(url_for('tariff-calls'))
+            return redirect(url_for('tariffs_call'))
 

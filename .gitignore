@@ -298,3 +298,5 @@ app/static/images/documents/*.gif
 app/static/images/reports/*.gif
 
 config.py
+
+*.xlsx
